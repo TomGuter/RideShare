@@ -12,6 +12,7 @@ import androidx.core.content.ContextCompat.startActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.shareride.ui.LoginActivity
+import com.example.shareride.ui.RideFragment
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -71,7 +72,14 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun openRideFragment() {
+        val rideFragment = RideFragment()
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.fragment_container, rideFragment)
+            .commit()
+
+
     }
+
 
     private fun isUserLoggedIn(): Boolean {
         val user = FirebaseAuth.getInstance().currentUser
