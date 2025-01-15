@@ -1,12 +1,13 @@
 package com.example.shareride.ui
 
-import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.EditText
 import android.widget.Toast
+import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -15,9 +16,7 @@ import com.example.shareride.R
 import com.example.shareride.adapter.RideAdapter
 import com.example.shareride.data.Ride
 import com.example.shareride.databinding.FragmentRideBinding
-import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-
 
 class RideFragment : Fragment() {
 
@@ -26,6 +25,10 @@ class RideFragment : Fragment() {
     private val rideList = mutableListOf<Ride>()
     private val firestore = FirebaseFirestore.getInstance()
 
+    private lateinit var searchLocationEditText: EditText
+    private lateinit var ratingFilterEditText: EditText
+
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -33,6 +36,9 @@ class RideFragment : Fragment() {
         val binding = FragmentRideBinding.inflate(inflater, container, false)
 
         rideRecyclerView = binding.rideList
+        searchLocationEditText = binding.searchLocation
+        ratingFilterEditText = binding.ratingFilter
+
         rideAdapter = RideAdapter(rideList) { ride ->
             showRideDetails(ride)
         }
@@ -40,22 +46,19 @@ class RideFragment : Fragment() {
         rideRecyclerView.layoutManager = LinearLayoutManager(context)
         rideRecyclerView.adapter = rideAdapter
 
-
+        // Fetch rides from the database
         fetchRidesFromDatabase()
 
-        // Add a new ride (for example, this could be done when a button is clicked)
-        val addRideButton = binding.root.findViewById<Button>(R.id.add_ride_button)
-        addRideButton.setOnClickListener {
-            val newRide = Ride(
-                "New Ride",
-                "Driver Z",
-                "Location X",
-                "Location Y",
-                "2023-12-01",
-                "06:00 PM",
-                4.7f
-            )
-            addRideToDatabase(newRide)
+
+
+        // Set up search functionality
+        searchLocationEditText.addTextChangedListener {
+            filterRides()
+        }
+
+        // Set up rating filter
+        ratingFilterEditText.addTextChangedListener {
+            filterRides()
         }
 
         return binding.root
@@ -71,6 +74,7 @@ class RideFragment : Fragment() {
                     val ride = document.toObject(Ride::class.java)
                     rideList.add(ride)
                 }
+
                 rideAdapter.notifyDataSetChanged() // Notify adapter that data has changed
             }
             .addOnFailureListener { exception ->
@@ -78,17 +82,30 @@ class RideFragment : Fragment() {
             }
     }
 
-    private fun addRideToDatabase(ride: Ride) {
-        firestore.collection("rides")
-            .add(ride)
-            .addOnSuccessListener {
-                rideList.add(ride)
-                rideAdapter.notifyItemInserted(rideList.size - 1)
-                Toast.makeText(requireContext(), "Ride added successfully", Toast.LENGTH_SHORT).show()
-            }
-            .addOnFailureListener { exception ->
-                Toast.makeText(requireContext(), "Error adding ride: ${exception.message}", Toast.LENGTH_SHORT).show()
-            }
+
+
+    private fun filterRides() {
+        val searchQuery = searchLocationEditText.text.toString().lowercase()
+
+        // Ensure the rating input is parsed correctly
+        val selectedRating = ratingFilterEditText.text.toString().toFloatOrNull() ?: 0f
+
+        // Apply the filters (search and rating)
+        val filteredRides = rideList.filter { ride ->
+            val matchesLocation = (ride.routeFrom?.lowercase() ?: "").contains(searchQuery) ||
+                    (ride.routeTo?.lowercase() ?: "").contains(searchQuery)
+            val matchesRating = ride.rating >= selectedRating
+
+            matchesLocation && matchesRating
+        }
+
+
+        if (searchQuery.isEmpty() && selectedRating == 0f) {
+            rideAdapter.updateRides(rideList) // Show all rides
+        } else {
+            // Update the adapter with the filtered list
+            rideAdapter.updateRides(filteredRides)
+        }
     }
 
     private fun showRideDetails(ride: Ride) {
@@ -100,31 +117,5 @@ class RideFragment : Fragment() {
 
         findNavController().navigate(action)
     }
-
-//   private fun showRideDetails(ride: Ride) {
-//    val bundle = Bundle().apply {
-//        putString("ride_name", ride.name)
-//        putString("driver_name", ride.driverName)
-//        putString("route_from", ride.routeFrom)
-//        putString("route_to", ride.routeTo)
-//        putString("date", ride.date)
-//        putString("departure_time", ride.departureTime)
-//        putFloat("rating", ride.rating)
-//    }
-//
-//    val rideDetailsFragment = RideDetailsFragment().apply {
-//        arguments = bundle
-//    }
-//
-//    parentFragmentManager.beginTransaction()
-//        .replace(R.id.fragment_container, rideDetailsFragment)
-//        .addToBackStack(null)
-//        .commit()
-//    }
-
-
-
-
 }
-
 

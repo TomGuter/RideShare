@@ -1,6 +1,5 @@
 package com.example.shareride
 
-
 import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
@@ -11,7 +10,6 @@ import androidx.appcompat.widget.Toolbar
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import com.example.shareride.ui.LoginActivity
-import com.example.shareride.ui.RideFragment
 import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
 
@@ -66,7 +64,7 @@ class MainActivity : AppCompatActivity() {
 
     // Inflate the menu options for the toolbar
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menuInflater.inflate(R.menu.main_menu, menu) // Inflate the same menu
+        menuInflater.inflate(R.menu.main_menu, menu) // Inflate the updated menu with Add Ride option
         return true
     }
 
@@ -82,10 +80,16 @@ class MainActivity : AppCompatActivity() {
                 navController.navigate(R.id.rideFragment)
                 return true
             }
+            R.id.action_add_ride -> {
+                // Navigate to the AddRideFragment
+                navController.navigate(R.id.addRideFragment)
+                return true
+            }
             else -> return super.onOptionsItemSelected(item)
         }
     }
 }
+
 
 
 

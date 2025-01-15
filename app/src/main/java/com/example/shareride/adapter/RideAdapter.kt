@@ -45,8 +45,12 @@ class RideAdapter(private val rideList: MutableList<Ride>, private val onRideCli
 
     // Method to update the list when new data is added or changed
     fun updateRides(newRides: List<Ride>) {
+        // Clear the existing data and add the new data
         rideList.clear()
         rideList.addAll(newRides)
+
+        // Notify the adapter that the data has changed
         notifyDataSetChanged()
     }
+
 }
