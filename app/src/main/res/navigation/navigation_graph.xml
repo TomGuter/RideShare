@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:androidx="http://schemas.android.com/apk/res-auto"
+    app:startDestination="@id/rideFragment"> <!-- Start with RideFragment -->
+
+    <!-- Ride Fragment -->
+    <fragment
+        android:id="@+id/rideFragment"
+        android:name="com.example.shareride.ui.RideFragment"
+        android:label="Ride List">
+        <action
+            android:id="@+id/action_rideFragment_to_rideDetailsFragment"
+            app:destination="@id/rideDetailsFragment" />
+    </fragment>
+
+    <!-- Ride Details Fragment -->
+    <fragment
+        android:id="@+id/rideDetailsFragment"
+        android:name="com.example.shareride.ui.RideDetailsFragment"
+        android:label="Ride Details">
+        <argument
+            android:name="ride_name"
+            app:argType="string" />
+        <argument
+            android:name="driver_name"
+            app:argType="string" />
+        <argument
+            android:name="route_from"
+            app:argType="string" />
+        <argument
+            android:name="route_to"
+            app:argType="string" />
+        <argument
+            android:name="date"
+            app:argType="string" />
+        <argument
+            android:name="departure_time"
+            app:argType="string" />
+        <argument
+            android:name="rating"
+            app:argType="float" />
+    </fragment>
+</navigation>
