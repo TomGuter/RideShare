@@ -115,11 +115,25 @@ class MyRidesFragment : Fragment() {
             val bundle = Bundle().apply {
                 putString("documentId", documentId)
                 putString("ride_name", ride.name)
-                // Add any other ride details to the bundle
+                putString("driver_name", ride.driverName)  // Add driver name to the bundle
+                putString("ride_from", ride.routeFrom)
+                putString("ride_to", ride.routeTo)
+                putString("ride_date", ride.date)
+                putString("ride_time", ride.departureTime)  // Add departure time to the bundle
+                // Add any other necessary fields from the 'ride' object if needed
             }
-            findNavController().navigate(R.id.action_myRidesFragment_to_addRideFragment, bundle)
+
+            // Navigate to the 'UpdateRideFragment' (make sure the fragment exists in the navigation graph)
+            findNavController().navigate(R.id.action_myRidesFragment_to_updateRideFragment, bundle)
         } else {
             Toast.makeText(requireContext(), "Unable to edit this ride.", Toast.LENGTH_SHORT).show()
         }
     }
+
+
+
+
+
+
+
 }

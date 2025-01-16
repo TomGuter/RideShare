@@ -65,11 +65,20 @@
         <action
             android:id="@+id/action_myRidesFragment_to_addRideFragment"
             app:destination="@id/addRideFragment" />
+        <!-- Action to navigate to the Update Ride Fragment -->
+        <action
+            android:id="@+id/action_myRidesFragment_to_updateRideFragment"
+            app:destination="@id/updateRideFragment" />
     </fragment>
 
+    <!-- Update Ride Fragment -->
+    <fragment
+        android:id="@+id/updateRideFragment"
+        android:name="com.example.shareride.ui.UpdateRideFragment"
+        android:label="Update Ride"
+        tools:layout="@layout/fragment_update_ride" />
+
 </navigation>
-
-
 
 
 
@@ -96,7 +105,10 @@
 <!--            app:destination="@id/rideDetailsFragment" />-->
 <!--        <action-->
 <!--            android:id="@+id/action_rideFragment_to_addRideFragment"-->
-<!--        app:destination="@id/addRideFragment" />-->
+<!--            app:destination="@id/addRideFragment" />-->
+<!--        <action-->
+<!--            android:id="@+id/action_rideFragment_to_myRidesFragment"-->
+<!--            app:destination="@id/myRidesFragment" />-->
 <!--    </fragment>-->
 
 <!--    &lt;!&ndash; Ride Details Fragment &ndash;&gt;-->
@@ -134,4 +146,82 @@
 <!--        android:label="Add Ride"-->
 <!--        tools:layout="@layout/fragment_add_ride" />-->
 
+<!--    &lt;!&ndash; My Rides Fragment &ndash;&gt;-->
+<!--    <fragment-->
+<!--        android:id="@+id/myRidesFragment"-->
+<!--        android:name="com.example.shareride.ui.MyRidesFragment"-->
+<!--        android:label="My Rides"-->
+<!--        tools:layout="@layout/fragment_my_rides">-->
+<!--        <action-->
+<!--            android:id="@+id/action_myRidesFragment_to_addRideFragment"-->
+<!--            app:destination="@id/addRideFragment" />-->
+<!--    </fragment>-->
+
 <!--</navigation>-->
+
+
+
+
+
+
+
+
+
+
+
+<!--    &lt;!&ndash;<?xml version="1.0" encoding="utf-8"?>&ndash;&gt;-->
+<!--&lt;!&ndash;<navigation xmlns:android="http://schemas.android.com/apk/res/android"&ndash;&gt;-->
+<!--&lt;!&ndash;    xmlns:app="http://schemas.android.com/apk/res-auto"&ndash;&gt;-->
+<!--&lt;!&ndash;    xmlns:androidx="http://schemas.android.com/apk/res-auto"&ndash;&gt;-->
+<!--&lt;!&ndash;    xmlns:tools="http://schemas.android.com/tools"&ndash;&gt;-->
+<!--&lt;!&ndash;    app:startDestination="@id/rideFragment"> &lt;!&ndash; Start with RideFragment &ndash;&gt;&ndash;&gt;-->
+
+<!--&lt;!&ndash;    &lt;!&ndash; Ride Fragment &ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;    <fragment&ndash;&gt;-->
+<!--&lt;!&ndash;        android:id="@+id/rideFragment"&ndash;&gt;-->
+<!--&lt;!&ndash;        android:name="com.example.shareride.ui.RideFragment"&ndash;&gt;-->
+<!--&lt;!&ndash;        android:label="Ride List">&ndash;&gt;-->
+<!--&lt;!&ndash;        <action&ndash;&gt;-->
+<!--&lt;!&ndash;            android:id="@+id/action_rideFragment_to_rideDetailsFragment"&ndash;&gt;-->
+<!--&lt;!&ndash;            app:destination="@id/rideDetailsFragment" />&ndash;&gt;-->
+<!--&lt;!&ndash;        <action&ndash;&gt;-->
+<!--&lt;!&ndash;            android:id="@+id/action_rideFragment_to_addRideFragment"&ndash;&gt;-->
+<!--&lt;!&ndash;        app:destination="@id/addRideFragment" />&ndash;&gt;-->
+<!--&lt;!&ndash;    </fragment>&ndash;&gt;-->
+
+<!--&lt;!&ndash;    &lt;!&ndash; Ride Details Fragment &ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;    <fragment&ndash;&gt;-->
+<!--&lt;!&ndash;        android:id="@+id/rideDetailsFragment"&ndash;&gt;-->
+<!--&lt;!&ndash;        android:name="com.example.shareride.ui.RideDetailsFragment"&ndash;&gt;-->
+<!--&lt;!&ndash;        android:label="Ride Details">&ndash;&gt;-->
+<!--&lt;!&ndash;        <argument&ndash;&gt;-->
+<!--&lt;!&ndash;            android:name="ride_name"&ndash;&gt;-->
+<!--&lt;!&ndash;            app:argType="string" />&ndash;&gt;-->
+<!--&lt;!&ndash;        <argument&ndash;&gt;-->
+<!--&lt;!&ndash;            android:name="driver_name"&ndash;&gt;-->
+<!--&lt;!&ndash;            app:argType="string" />&ndash;&gt;-->
+<!--&lt;!&ndash;        <argument&ndash;&gt;-->
+<!--&lt;!&ndash;            android:name="route_from"&ndash;&gt;-->
+<!--&lt;!&ndash;            app:argType="string" />&ndash;&gt;-->
+<!--&lt;!&ndash;        <argument&ndash;&gt;-->
+<!--&lt;!&ndash;            android:name="route_to"&ndash;&gt;-->
+<!--&lt;!&ndash;            app:argType="string" />&ndash;&gt;-->
+<!--&lt;!&ndash;        <argument&ndash;&gt;-->
+<!--&lt;!&ndash;            android:name="date"&ndash;&gt;-->
+<!--&lt;!&ndash;            app:argType="string" />&ndash;&gt;-->
+<!--&lt;!&ndash;        <argument&ndash;&gt;-->
+<!--&lt;!&ndash;            android:name="departure_time"&ndash;&gt;-->
+<!--&lt;!&ndash;            app:argType="string" />&ndash;&gt;-->
+<!--&lt;!&ndash;        <argument&ndash;&gt;-->
+<!--&lt;!&ndash;            android:name="rating"&ndash;&gt;-->
+<!--&lt;!&ndash;            app:argType="float" />&ndash;&gt;-->
+<!--&lt;!&ndash;    </fragment>&ndash;&gt;-->
+
+<!--&lt;!&ndash;    &lt;!&ndash; Add Ride Fragment &ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;    <fragment&ndash;&gt;-->
+<!--&lt;!&ndash;        android:id="@+id/addRideFragment"&ndash;&gt;-->
+<!--&lt;!&ndash;        android:name="com.example.shareride.ui.AddRideFragment"&ndash;&gt;-->
+<!--&lt;!&ndash;        android:label="Add Ride"&ndash;&gt;-->
+<!--&lt;!&ndash;        tools:layout="@layout/fragment_add_ride" />&ndash;&gt;-->
+
+<!--&lt;!&ndash;</navigation>&ndash;&gt;-->

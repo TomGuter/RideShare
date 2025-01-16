@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ui.UpdateRideFragment">
+
+    <!-- LinearLayout to organize elements vertically -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- EditText for Ride Name -->
+        <EditText
+            android:id="@+id/editTextRideName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Enter Ride Name"
+            android:inputType="text"
+            android:enabled="false"/>
+
+        <!-- EditText for Driver Name -->
+        <EditText
+            android:id="@+id/editTextDriverName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Enter Driver Name"
+            android:inputType="text"/>
+
+        <!-- EditText for Ride From -->
+        <EditText
+            android:id="@+id/editTextRideFrom"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Enter Starting Point"
+            android:inputType="text" />
+
+        <!-- EditText for Ride To -->
+        <EditText
+            android:id="@+id/editTextRideTo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Enter Destination"
+            android:inputType="text" />
+
+        <!-- EditText for Ride Date -->
+        <EditText
+            android:id="@+id/editTextRideDate"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Enter Ride Date"
+            android:inputType="date" />
+
+        <!-- EditText for Ride Time -->
+        <EditText
+            android:id="@+id/editTextRideTime"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Enter Ride Time"
+            android:inputType="time" />
+
+        <!-- Button to Save the Updated Ride -->
+        <Button
+            android:id="@+id/saveRideButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Save Ride"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="16dp"/>
+
+    </LinearLayout>
+
+</FrameLayout>
