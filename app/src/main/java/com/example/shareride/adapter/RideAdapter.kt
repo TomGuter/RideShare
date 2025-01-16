@@ -16,6 +16,7 @@ class RideAdapter(private val rideList: MutableList<Ride>, private val onRideCli
         private val driverName: TextView = itemView.findViewById(R.id.driver_name)
         private val rating: TextView = itemView.findViewById(R.id.rating)
 
+
         fun bind(ride: Ride) {
             rideName.text = ride.name
             driverName.text = ride.driverName
@@ -45,12 +46,12 @@ class RideAdapter(private val rideList: MutableList<Ride>, private val onRideCli
 
     // Method to update the list when new data is added or changed
     fun updateRides(newRides: List<Ride>) {
-        // Clear the existing data and add the new data
-        rideList.clear()
-        rideList.addAll(newRides)
-
-        // Notify the adapter that the data has changed
-        notifyDataSetChanged()
+        // Only update if there's a change in data
+        if (rideList != newRides) {
+            rideList.clear()
+            rideList.addAll(newRides)
+            notifyDataSetChanged()  // Notify adapter about data change
+        }
     }
 
 }

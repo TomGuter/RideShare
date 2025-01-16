@@ -29,7 +29,8 @@ class MainActivity : AppCompatActivity() {
         setSupportActionBar(toolbar)
 
         // Initialize NavController
-        val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
+        val navHostFragment =
+            supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
         navController = navHostFragment.navController
 
         // Check if the user is logged in and navigate accordingly
@@ -64,7 +65,10 @@ class MainActivity : AppCompatActivity() {
 
     // Inflate the menu options for the toolbar
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menuInflater.inflate(R.menu.main_menu, menu) // Inflate the updated menu with Add Ride option
+        menuInflater.inflate(
+            R.menu.main_menu,
+            menu
+        ) // Inflate the updated menu with Add Ride option
         return true
     }
 
@@ -75,20 +79,30 @@ class MainActivity : AppCompatActivity() {
                 logoutUser() // Log out and go to LoginActivity
                 return true
             }
+
             R.id.action_rides -> {
                 // Navigate to the RideFragment
                 navController.navigate(R.id.rideFragment)
                 return true
             }
+
             R.id.action_add_ride -> {
                 // Navigate to the AddRideFragment
                 navController.navigate(R.id.addRideFragment)
                 return true
             }
+
+            R.id.action_my_rides -> {
+                // Navigate to the MyRidesFragment
+                navController.navigate(R.id.myRidesFragment)
+                return true
+            }
+
             else -> return super.onOptionsItemSelected(item)
         }
     }
 }
+
 
 
 

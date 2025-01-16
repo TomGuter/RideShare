@@ -23,6 +23,9 @@ class RideFragment : Fragment() {
     private lateinit var rideRecyclerView: RecyclerView
     private lateinit var rideAdapter: RideAdapter
     private val rideList = mutableListOf<Ride>()
+    // Declare the list to hold pairs of Ride and its documentId
+    private val rideWithIdList = mutableListOf<Pair<Ride, String>>()
+
     private val firestore = FirebaseFirestore.getInstance()
 
     private lateinit var searchLocationEditText: EditText
@@ -64,15 +67,29 @@ class RideFragment : Fragment() {
         return binding.root
     }
 
-    // Fetch rides from Firestore
+
     private fun fetchRidesFromDatabase() {
         firestore.collection("rides")
             .get()
             .addOnSuccessListener { result ->
                 rideList.clear() // Clear the existing list to avoid duplicates
+                rideWithIdList.clear() // Clear the list for the ride-document ID pairs
+
+                // Iterate over the result to fetch rides and their document IDs
                 for (document in result) {
                     val ride = document.toObject(Ride::class.java)
-                    rideList.add(ride)
+                    val documentId = document.id // Fetch the document ID
+
+                    // Add the ride and document ID pair to the list
+                    rideList.add(ride) // Add ride to the ride list
+                    rideWithIdList.add(Pair(ride, documentId)) // Add the ride and document ID pair
+                }
+
+                // Now you can use rideWithIdList to access both ride data and document ID
+                rideWithIdList.forEach { rideWithId ->
+                    val ride = rideWithId.first
+                    val documentId = rideWithId.second
+                    // Perform any operations with `ride` and `documentId`
                 }
 
                 rideAdapter.notifyDataSetChanged() // Notify adapter that data has changed
@@ -81,6 +98,26 @@ class RideFragment : Fragment() {
                 Toast.makeText(requireContext(), "Error fetching rides: ${exception.message}", Toast.LENGTH_SHORT).show()
             }
     }
+
+
+
+//     Fetch rides from Firestore
+//    private fun fetchRidesFromDatabase() {
+//        firestore.collection("rides")
+//            .get()
+//            .addOnSuccessListener { result ->
+//                rideList.clear() // Clear the existing list to avoid duplicates
+//                for (document in result) {
+//                    val ride = document.toObject(Ride::class.java)
+//                    rideList.add(ride)
+//                }
+//
+//                rideAdapter.notifyDataSetChanged() // Notify adapter that data has changed
+//            }
+//            .addOnFailureListener { exception ->
+//                Toast.makeText(requireContext(), "Error fetching rides: ${exception.message}", Toast.LENGTH_SHORT).show()
+//            }
+//    }
 
 
 

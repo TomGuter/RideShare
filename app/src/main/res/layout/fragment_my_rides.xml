@@ -1,0 +1,27 @@
+<!-- fragment_my_rides.xml -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <!-- Title for the My Rides section -->
+    <TextView
+        android:id="@+id/title_my_rides"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="My Rides"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:paddingBottom="16dp"
+        android:textColor="@android:color/black" />
+
+    <!-- RecyclerView to display the rides -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerViewMyRides"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:scrollbars="vertical"
+        android:clipToPadding="false" />
+</LinearLayout>
