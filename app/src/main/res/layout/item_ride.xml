@@ -1,6 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:padding="16dp"
+    android:background="?android:attr/selectableItemBackground">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <!-- Ride Name -->
+    <TextView
+        android:id="@+id/ride_name"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="Ride Name"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:paddingEnd="8dp"
+        android:ellipsize="end"
+        android:maxLines="1" />
+
+    <!-- Driver Name -->
+    <TextView
+        android:id="@+id/driver_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Driver Name"
+        android:textSize="14sp"
+        android:paddingEnd="8dp"
+        android:ellipsize="end"
+        android:maxLines="1" />
+
+    <!-- Ride Rating -->
+    <TextView
+        android:id="@+id/rating"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Rating"
+        android:textSize="14sp"
+        android:textColor="@android:color/holo_green_dark" />
+
+</LinearLayout>
