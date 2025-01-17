@@ -25,8 +25,7 @@ class UpdateRideFragment : Fragment() {
     private lateinit var rideDate: String
     private lateinit var rideTime: String
 
-    private lateinit var rideViewModel: RideViewModel  // If you're using a ViewModel to handle database operations
-
+    private lateinit var rideViewModel: RideViewModel
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -40,7 +39,6 @@ class UpdateRideFragment : Fragment() {
         rideViewModel = ViewModelProvider(this)[RideViewModel::class.java]
 
 
-        // Retrieve the data from the Bundle
         arguments?.let {
             documentId = it.getString("documentId", "")
             rideName = it.getString("ride_name", "")

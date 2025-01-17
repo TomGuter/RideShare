@@ -10,7 +10,7 @@ import com.example.shareride.R
 import com.example.shareride.data.Ride
 
 class MyRidesAdapter(
-    private var rideList: MutableList<Ride>, // MutableList for easier updates
+    private var rideList: MutableList<Ride>,
     private val onDeleteClick: (Ride) -> Unit,
     private val onEditClick: (Ride) -> Unit
 ) : RecyclerView.Adapter<MyRidesAdapter.RideViewHolder>() {
@@ -23,7 +23,6 @@ class MyRidesAdapter(
         val updateButton: Button = view.findViewById(R.id.btn_update)
 
         init {
-            // Handle delete button click
             deleteButton.setOnClickListener {
                 val position = adapterPosition
                 if (position != RecyclerView.NO_POSITION) {
@@ -32,7 +31,6 @@ class MyRidesAdapter(
                 }
             }
 
-            // Handle update button click
             updateButton.setOnClickListener {
                 val position = adapterPosition
                 if (position != RecyclerView.NO_POSITION) {

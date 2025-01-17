@@ -76,7 +76,6 @@ class RideViewModel : ViewModel() {
             }
     }
 
-    // Add the updateRide function here
     fun updateRide(rideId: String, updatedRide: Ride) {
         val x = 2
         firestore.collection("rides")

@@ -33,17 +33,17 @@ class MyRidesFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Initialize ViewModel
+
         rideViewModel = ViewModelProvider(this).get(RideViewModel::class.java)
 
-        // Initialize Firestore
+
         firestore = FirebaseFirestore.getInstance()
 
-        // Initialize RecyclerView
+
         val recyclerView: RecyclerView = view.findViewById(R.id.recyclerViewMyRides)
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
 
-        // Set the Adapter
+
         rideAdapter = MyRidesAdapter(
             mutableListOf(),
             onDeleteClick = { ride -> deleteRide(ride) },
@@ -51,14 +51,12 @@ class MyRidesFragment : Fragment() {
         )
         recyclerView.adapter = rideAdapter
 
-        // Fetch rides from Firestore
         fetchRidesFromDatabase()
 
-        // Observe LiveData for user's rides (optional if using ViewModel LiveData)
         rideViewModel.userRides.observe(viewLifecycleOwner) { rides ->
             rideWithIdList.clear()
             rideWithIdList.addAll(rides)
-            rideAdapter.updateRides(rides.map { it.first }) // Update adapter with Ride objects
+            rideAdapter.updateRides(rides.map { it.first })
         }
 
         rideViewModel.errorMessage.observe(viewLifecycleOwner) { error ->
@@ -70,18 +68,15 @@ class MyRidesFragment : Fragment() {
         firestore.collection("rides")
             .get()
             .addOnSuccessListener { result ->
-                rideWithIdList.clear() // Clear the list for the ride-document ID pairs
+                rideWithIdList.clear()
 
-                // Iterate over the result to fetch rides and their document IDs
                 for (document in result) {
                     val ride = document.toObject(Ride::class.java)
-                    val documentId = document.id // Fetch the document ID
+                    val documentId = document.id
 
-                    // Add the ride and document ID pair to the list
-                    rideWithIdList.add(Pair(ride, documentId)) // Add the ride and document ID pair
+                    rideWithIdList.add(Pair(ride, documentId))
                 }
 
-                // Update the RecyclerView adapter
                 rideAdapter.updateRides(rideWithIdList.map { it.first })
 
             }
@@ -91,7 +86,6 @@ class MyRidesFragment : Fragment() {
     }
 
     private fun deleteRide(ride: Ride) {
-        // Find the document ID corresponding to the ride
         val documentId = rideWithIdList.find { it.first == ride }?.second
 
         if (documentId != null) {
@@ -115,15 +109,14 @@ class MyRidesFragment : Fragment() {
             val bundle = Bundle().apply {
                 putString("documentId", documentId)
                 putString("ride_name", ride.name)
-                putString("driver_name", ride.driverName)  // Add driver name to the bundle
+                putString("driver_name", ride.driverName)
                 putString("ride_from", ride.routeFrom)
                 putString("ride_to", ride.routeTo)
                 putString("ride_date", ride.date)
-                putString("ride_time", ride.departureTime)  // Add departure time to the bundle
-                // Add any other necessary fields from the 'ride' object if needed
+                putString("ride_time", ride.departureTime)
+
             }
 
-            // Navigate to the 'UpdateRideFragment' (make sure the fragment exists in the navigation graph)
             findNavController().navigate(R.id.action_myRidesFragment_to_updateRideFragment, bundle)
         } else {
             Toast.makeText(requireContext(), "Unable to edit this ride.", Toast.LENGTH_SHORT).show()

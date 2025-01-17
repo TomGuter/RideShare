@@ -72,20 +72,18 @@ class RideFragment : Fragment() {
         firestore.collection("rides")
             .get()
             .addOnSuccessListener { result ->
-                rideList.clear() // Clear the existing list to avoid duplicates
-                rideWithIdList.clear() // Clear the list for the ride-document ID pairs
+                rideList.clear()
+                rideWithIdList.clear()
 
-                // Iterate over the result to fetch rides and their document IDs
+
                 for (document in result) {
                     val ride = document.toObject(Ride::class.java)
-                    val documentId = document.id // Fetch the document ID
+                    val documentId = document.id
 
-                    // Add the ride and document ID pair to the list
-                    rideList.add(ride) // Add ride to the ride list
-                    rideWithIdList.add(Pair(ride, documentId)) // Add the ride and document ID pair
+                    rideList.add(ride)
+                    rideWithIdList.add(Pair(ride, documentId))
                 }
 
-                // Now you can use rideWithIdList to access both ride data and document ID
                 rideWithIdList.forEach { rideWithId ->
                     val ride = rideWithId.first
                     val documentId = rideWithId.second
