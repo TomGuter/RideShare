@@ -11,6 +11,7 @@ import com.example.shareride.R
 import com.example.shareride.data.Ride
 import com.example.shareride.viewmodel.RideViewModel
 import com.google.android.material.textfield.TextInputEditText
+import com.google.firebase.auth.FirebaseAuth
 
 class AddRideFragment : Fragment() {
 
@@ -73,6 +74,8 @@ class AddRideFragment : Fragment() {
         val date = dateInput.text.toString().trim()
         val departureTime = departureTimeInput.text.toString().trim()
 
+        val userId = FirebaseAuth.getInstance().currentUser?.uid ?: ""
+
         return if (rideName.isNotEmpty() && driverName.isNotEmpty() && routeFrom.isNotEmpty()
             && routeTo.isNotEmpty() && date.isNotEmpty() && departureTime.isNotEmpty()
         ) {
@@ -83,12 +86,14 @@ class AddRideFragment : Fragment() {
                 routeTo = routeTo,
                 date = date,
                 departureTime = departureTime,
-                rating = 0.0f
+                rating = 0.0f,
+                userId = userId  // Include the userId here
             )
         } else {
             null
         }
     }
+
 }
 
 

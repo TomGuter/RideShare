@@ -7,6 +7,7 @@ data class Ride(
     val routeTo: String = "",
     val date: String = "",
     val departureTime: String = "",
-    val rating: Float = 0f
+    val rating: Float = 0f,
+    val userId: String = ""
 )
 
