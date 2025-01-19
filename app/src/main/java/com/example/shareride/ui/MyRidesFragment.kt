@@ -1,6 +1,7 @@
 package com.example.shareride.ui
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,6 +15,7 @@ import com.example.shareride.R
 import com.example.shareride.adapter.MyRidesAdapter
 import com.example.shareride.data.Ride
 import com.example.shareride.viewmodel.RideViewModel
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
 class MyRidesFragment : Fragment() {
@@ -65,25 +67,31 @@ class MyRidesFragment : Fragment() {
     }
 
     private fun fetchRidesFromDatabase() {
-        firestore.collection("rides")
-            .get()
-            .addOnSuccessListener { result ->
-                rideWithIdList.clear()
+        val userId = FirebaseAuth.getInstance().currentUser?.uid
+        if (userId != null) {
+            firestore.collection("rides")
+                .whereEqualTo("userId", userId) // מסנן לפי userId
+                .get()
+                .addOnSuccessListener { result ->
+                    rideWithIdList.clear()
 
-                for (document in result) {
-                    val ride = document.toObject(Ride::class.java)
-                    val documentId = document.id
+                    for (document in result) {
+                        val ride = document.toObject(Ride::class.java)
+                        val documentId = document.id
+                        rideWithIdList.add(Pair(ride, documentId))
+                    }
 
-                    rideWithIdList.add(Pair(ride, documentId))
+                    rideAdapter.updateRides(rideWithIdList.map { it.first })
                 }
+                .addOnFailureListener { exception ->
+                    Toast.makeText(requireContext(), "Error fetching rides: ${exception.message}", Toast.LENGTH_SHORT).show()
+                }
+        } else {
+            Toast.makeText(requireContext(), "User not logged in", Toast.LENGTH_SHORT).show()
+        }
 
-                rideAdapter.updateRides(rideWithIdList.map { it.first })
-
-            }
-            .addOnFailureListener { exception ->
-                Toast.makeText(requireContext(), "Error fetching rides: ${exception.message}", Toast.LENGTH_SHORT).show()
-            }
     }
+
 
     private fun deleteRide(ride: Ride) {
         val documentId = rideWithIdList.find { it.first == ride }?.second
