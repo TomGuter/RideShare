@@ -8,6 +8,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.shareride.MainActivity
 import com.example.shareride.R
+import com.example.shareride.data.User
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
@@ -54,16 +55,16 @@ class RegisterActivity : AppCompatActivity() {
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
                     val user = auth.currentUser
-                    val userData = hashMapOf(
-                        "firstName" to firstName,
-                        "lastName" to lastName,
-                        "email" to email
+
+                    val newUser = User(
+                        firstName = firstName,
+                        lastName = lastName,
+                        email = email
                     )
 
-                    // Save user data to Firestore
                     user?.let {
                         db.collection("users").document(it.uid)
-                            .set(userData)
+                            .set(newUser)
                             .addOnSuccessListener {
                                 Toast.makeText(this, "Registration successful!", Toast.LENGTH_SHORT).show()
                                 val intent = Intent(this, MainActivity::class.java)
