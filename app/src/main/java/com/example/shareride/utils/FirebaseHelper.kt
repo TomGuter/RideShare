@@ -1,4 +1,3 @@
-// utils/FirebaseHelper.kt
 package com.example.shareride.utils
 
 import com.example.shareride.data.Ride
