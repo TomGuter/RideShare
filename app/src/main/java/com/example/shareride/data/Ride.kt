@@ -8,6 +8,8 @@ data class Ride(
     val date: String = "",
     val departureTime: String = "",
     val rating: Float = 0f,
-    val userId: String = ""
+    val userId: String = "",
+    val latitude: Double = 0.0,
+    val longitude: Double = 0.0
 )
 
