@@ -2,6 +2,7 @@ package com.example.shareride.ui
 
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
+import android.location.Geocoder
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -53,7 +54,7 @@ class AddRideFragment : Fragment() {
         view.findViewById<View>(R.id.add_ride_button).setOnClickListener {
             val ride = createRideFromInput()
             if (ride != null) {
-                rideViewModel.addRideToDatabase(ride)
+                getCoordinatesAndAddRide(ride)
             } else {
                 Toast.makeText(requireContext(), "Please fill in all fields", Toast.LENGTH_SHORT).show()
             }
@@ -96,10 +97,53 @@ class AddRideFragment : Fragment() {
                 date = date,
                 departureTime = departureTime,
                 rating = 0.0f,
-                userId = userId
+                userId = userId,
+                latitude = 0.0,
+                longitude = 0.0
             )
         } else {
             null
+        }
+    }
+
+    private fun getCoordinatesAndAddRide(ride: Ride) {
+        val routeFrom = ride.routeFrom
+
+        Thread {
+            val (latitude, longitude) = getCoordinates(routeFrom)
+
+            if (latitude != 0.0 && longitude != 0.0) {
+                // Once coordinates are fetched, update the ride object and add it to the database
+                val updatedRide = ride.copy(
+                    latitude = latitude,
+                    longitude = longitude
+                )
+
+                rideViewModel.addRideToDatabase(updatedRide)
+
+                activity?.runOnUiThread {
+                    Toast.makeText(requireContext(), "Ride added successfully", Toast.LENGTH_SHORT).show()
+                    requireActivity().onBackPressed()
+                }
+            } else {
+                activity?.runOnUiThread {
+                    Toast.makeText(requireContext(), "Failed to get coordinates for $routeFrom", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }.start()
+    }
+
+    private fun getCoordinates(routeFrom: String): Pair<Double, Double> {
+        val geocoder = Geocoder(requireContext())
+        val addresses = geocoder.getFromLocationName(routeFrom, 1)
+
+        return if (addresses != null && addresses.isNotEmpty()) {
+            val address = addresses[0]
+            val latitude = address.latitude
+            val longitude = address.longitude
+            Pair(latitude, longitude)
+        } else {
+            Pair(0.0, 0.0)
         }
     }
 
@@ -133,3 +177,7 @@ class AddRideFragment : Fragment() {
         timePickerDialog.show()
     }
 }
+
+
+
+
