@@ -33,24 +33,20 @@ class RideAdapter(private val rideList: MutableList<Ride>, private val onRideCli
         return RideViewHolder(view)
     }
 
-    // Called to display the data at the specified position
     override fun onBindViewHolder(holder: RideViewHolder, position: Int) {
         val ride = rideList[position]
         holder.bind(ride)
     }
 
-    // Returns the total number of items in the list
     override fun getItemCount(): Int {
         return rideList.size
     }
 
-    // Method to update the list when new data is added or changed
     fun updateRides(newRides: List<Ride>) {
-        // Only update if there's a change in data
         if (rideList != newRides) {
             rideList.clear()
             rideList.addAll(newRides)
-            notifyDataSetChanged()  // Notify adapter about data change
+            notifyDataSetChanged()
         }
     }
 
