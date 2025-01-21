@@ -9,17 +9,14 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
 import com.example.shareride.R
-import com.example.shareride.data.Ride
-import com.example.shareride.viewmodel.RideViewModel
+import com.example.shareride.model.Model
+import com.example.shareride.model.Ride
 import com.google.android.material.textfield.TextInputEditText
 import com.google.firebase.auth.FirebaseAuth
 import java.util.*
 
 class AddRideFragment : Fragment() {
-
-    private val rideViewModel: RideViewModel by viewModels()
 
     private lateinit var rideNameInput: TextInputEditText
     private lateinit var driverNameInput: TextInputEditText
@@ -49,8 +46,6 @@ class AddRideFragment : Fragment() {
             showTimePicker()
         }
 
-        observeViewModel()
-
         view.findViewById<View>(R.id.add_ride_button).setOnClickListener {
             val ride = createRideFromInput()
             if (ride != null) {
@@ -63,17 +58,8 @@ class AddRideFragment : Fragment() {
         return view
     }
 
-    private fun observeViewModel() {
-        rideViewModel.rideAdded.observe(viewLifecycleOwner) { isAdded ->
-            if (isAdded) {
-                Toast.makeText(requireContext(), "Ride added successfully", Toast.LENGTH_SHORT).show()
-                requireActivity().onBackPressed()
-            }
-        }
-
-        rideViewModel.errorMessage.observe(viewLifecycleOwner) { error ->
-            Toast.makeText(requireContext(), "Error adding ride: $error", Toast.LENGTH_SHORT).show()
-        }
+    private fun generateUniqueId(): String {
+        return UUID.randomUUID().toString()
     }
 
     private fun createRideFromInput(): Ride? {
@@ -90,6 +76,7 @@ class AddRideFragment : Fragment() {
             && routeTo.isNotEmpty() && date.isNotEmpty() && departureTime.isNotEmpty()
         ) {
             Ride(
+                id = generateUniqueId(),
                 name = rideName,
                 driverName = driverName,
                 routeFrom = routeFrom,
@@ -119,12 +106,13 @@ class AddRideFragment : Fragment() {
                     longitude = longitude
                 )
 
-                rideViewModel.addRideToDatabase(updatedRide)
-
-                activity?.runOnUiThread {
-                    Toast.makeText(requireContext(), "Ride added successfully", Toast.LENGTH_SHORT).show()
-                    requireActivity().onBackPressed()
+                Model.shared.addRide(updatedRide) {
+                    activity?.runOnUiThread {
+                        Toast.makeText(requireContext(), "Ride added successfully", Toast.LENGTH_SHORT).show()
+                        requireActivity().onBackPressed()
+                    }
                 }
+
             } else {
                 activity?.runOnUiThread {
                     Toast.makeText(requireContext(), "Failed to get coordinates for $routeFrom", Toast.LENGTH_SHORT).show()
@@ -177,7 +165,3 @@ class AddRideFragment : Fragment() {
         timePickerDialog.show()
     }
 }
-
-
-
-
