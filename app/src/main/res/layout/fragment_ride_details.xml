@@ -6,81 +6,125 @@
     android:layout_height="wrap_content"
     tools:context="ui.RideDetailsFragment">
 
-    <!-- Ride Name TextView -->
+    <ImageView
+        android:id="@+id/driver_image"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:src="@drawable/avatar"
+        android:contentDescription="Driver's Avatar"
+        android:layout_marginEnd="16dp"
+        android:layout_alignParentStart="true"
+        android:layout_gravity="center_vertical"
+        android:scaleType="centerCrop"
+        android:background="@drawable/circle_background"
+        android:elevation="4dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
     <TextView
         android:id="@+id/ride_name_textview"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Ride Name"
-        android:textSize="16sp"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:textColor="#212121"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginStart="16dp" />
+        app:layout_constraintStart_toEndOf="@id/driver_image"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:ellipsize="end"
+        android:maxLines="1" />
 
-    <!-- Driver Name TextView -->
     <TextView
         android:id="@+id/driver_name_textview"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Driver Name"
         android:textSize="14sp"
+        android:textColor="#757575"
         app:layout_constraintTop_toBottomOf="@id/ride_name_textview"
-        app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginStart="16dp" />
+        app:layout_constraintStart_toStartOf="@id/ride_name_textview"
+        android:layout_marginTop="4dp"
+        android:ellipsize="end"
+        android:maxLines="1" />
 
-    <!-- Departure Location TextView -->
     <TextView
         android:id="@+id/departure_location_textview"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="From: Location"
         android:textSize="14sp"
+        android:textColor="#757575"
         app:layout_constraintTop_toBottomOf="@id/driver_name_textview"
-        app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginStart="16dp" />
+        app:layout_constraintStart_toStartOf="@id/ride_name_textview"
+        android:layout_marginTop="12dp"
+        android:ellipsize="end"
+        android:maxLines="1" />
 
-    <!-- Arrival Location TextView -->
     <TextView
         android:id="@+id/arrival_location_textview"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="To: Location"
         android:textSize="14sp"
+        android:textColor="#757575"
         app:layout_constraintTop_toBottomOf="@id/departure_location_textview"
-        app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginStart="16dp" />
+        app:layout_constraintStart_toStartOf="@id/departure_location_textview"
+        android:layout_marginTop="4dp"
+        android:ellipsize="end"
+        android:maxLines="1" />
 
-    <!-- Ride Date TextView -->
     <TextView
         android:id="@+id/ride_date_textview"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Date: 2023-11-01"
         android:textSize="14sp"
+        android:textColor="#757575"
         app:layout_constraintTop_toBottomOf="@id/arrival_location_textview"
-        app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginStart="16dp" />
+        app:layout_constraintStart_toStartOf="@id/arrival_location_textview"
+        android:layout_marginTop="4dp"
+        android:ellipsize="end"
+        android:maxLines="1" />
 
-    <!-- Departure Time TextView -->
     <TextView
         android:id="@+id/departure_time_textview"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Departure Time: 08:00 AM"
         android:textSize="14sp"
+        android:textColor="#757575"
         app:layout_constraintTop_toBottomOf="@id/ride_date_textview"
-        app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginStart="16dp" />
+        app:layout_constraintStart_toStartOf="@id/ride_date_textview"
+        android:layout_marginTop="4dp"
+        android:ellipsize="end"
+        android:maxLines="1" />
 
-    <!-- Rating TextView -->
     <TextView
         android:id="@+id/rating_textview"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Rating: 4.5"
         android:textSize="14sp"
+        android:textColor="@android:color/holo_green_dark"
         app:layout_constraintTop_toBottomOf="@id/departure_time_textview"
-        app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginStart="16dp" />
+        app:layout_constraintStart_toStartOf="@id/departure_time_textview"
+        android:layout_marginTop="4dp" />
+
+    <TextView
+        android:id="@+id/vacant_seats_textview"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Vacant Seats: 0"
+        android:textSize="14sp"
+        android:textColor="#FF9800"
+        app:layout_constraintTop_toBottomOf="@id/rating_textview"
+        app:layout_constraintStart_toStartOf="@id/rating_textview"
+        android:layout_marginTop="8dp"
+        android:ellipsize="end"
+        android:maxLines="1" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

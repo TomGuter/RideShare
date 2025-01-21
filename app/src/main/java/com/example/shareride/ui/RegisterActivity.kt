@@ -22,13 +22,14 @@ class RegisterActivity : AppCompatActivity() {
     private lateinit var emailEditText: EditText
     private lateinit var passwordEditText: EditText
     private lateinit var registerButton: Button
+    private lateinit var loginTextView: TextView
 
     private lateinit var auth: FirebaseAuth
     private lateinit var db: FirebaseFirestore
 
     private var selectedImageUri: Uri? = null
     private val PICK_IMAGE_REQUEST = 1
-    private val defaultAvatarUrl = "android.resource://com.example.shareride/${R.drawable.avatar}" // Default avatar URI
+    private val defaultAvatarUrl = "android.resource://com.example.shareride/${R.drawable.avatar}"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,6 +45,7 @@ class RegisterActivity : AppCompatActivity() {
         emailEditText = findViewById(R.id.email_edit_text)
         passwordEditText = findViewById(R.id.password_edit_text)
         registerButton = findViewById(R.id.register_button)
+        loginTextView = findViewById(R.id.login_text_view)
 
         avatarImageView.setImageResource(R.drawable.avatar)
 
@@ -60,6 +62,12 @@ class RegisterActivity : AppCompatActivity() {
             } else {
                 Toast.makeText(this, "Please fill in all fields.", Toast.LENGTH_SHORT).show()
             }
+        }
+
+        loginTextView.setOnClickListener {
+            val intent = Intent(this, LoginActivity::class.java)
+            startActivity(intent)
+            finish()
         }
     }
 

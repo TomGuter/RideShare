@@ -97,7 +97,7 @@ class RideFragment : Fragment() {
     private fun showRideDetails(ride: Ride) {
         val action = RideFragmentDirections
             .actionRideFragmentToRideDetailsFragment(
-                ride.name, ride.driverName, ride.routeFrom, ride.routeTo, ride.date, ride.departureTime, ride.rating
+                ride.name, ride.driverName, ride.routeFrom, ride.routeTo, ride.date, ride.departureTime, ride.rating, ride.vacantSeats
             )
 
         findNavController().navigate(action)

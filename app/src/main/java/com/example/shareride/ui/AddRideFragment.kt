@@ -24,6 +24,7 @@ class AddRideFragment : Fragment() {
     private lateinit var routeToInput: TextInputEditText
     private lateinit var dateInput: TextInputEditText
     private lateinit var departureTimeInput: TextInputEditText
+    private lateinit var vacantSeatsInput: TextInputEditText  // New field for vacant seats
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -37,6 +38,7 @@ class AddRideFragment : Fragment() {
         routeToInput = view.findViewById(R.id.route_to_input)
         dateInput = view.findViewById(R.id.date_input)
         departureTimeInput = view.findViewById(R.id.departure_time_input)
+        vacantSeatsInput = view.findViewById(R.id.vacant_seats_input)  // Initialize vacant seats input
 
         dateInput.setOnClickListener {
             showDatePicker()
@@ -69,12 +71,16 @@ class AddRideFragment : Fragment() {
         val routeTo = routeToInput.text.toString().trim()
         val date = dateInput.text.toString().trim()
         val departureTime = departureTimeInput.text.toString().trim()
+        val vacantSeatsStr = vacantSeatsInput.text.toString().trim()
 
         val userId = FirebaseAuth.getInstance().currentUser?.uid ?: ""
 
         return if (rideName.isNotEmpty() && driverName.isNotEmpty() && routeFrom.isNotEmpty()
             && routeTo.isNotEmpty() && date.isNotEmpty() && departureTime.isNotEmpty()
+            && vacantSeatsStr.isNotEmpty() && vacantSeatsStr.toIntOrNull() != null
         ) {
+            val vacantSeats = vacantSeatsStr.toInt()
+
             Ride(
                 id = generateUniqueId(),
                 name = rideName,
@@ -86,7 +92,8 @@ class AddRideFragment : Fragment() {
                 rating = 0.0f,
                 userId = userId,
                 latitude = 0.0,
-                longitude = 0.0
+                longitude = 0.0,
+                vacantSeats = vacantSeats
             )
         } else {
             null

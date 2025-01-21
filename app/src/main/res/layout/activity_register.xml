@@ -6,7 +6,6 @@
     android:background="#F8F9FA"
     android:padding="16dp">
 
-
     <ImageView
         android:id="@+id/avatarImageView"
         android:layout_width="120dp"
@@ -20,7 +19,6 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
-
 
     <ImageButton
         android:id="@+id/addImageButton"
@@ -51,7 +49,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-
     <EditText
         android:id="@+id/last_name_edit_text"
         android:layout_width="0dp"
@@ -64,7 +61,6 @@
         app:layout_constraintTop_toBottomOf="@id/first_name_edit_text"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
-
 
     <EditText
         android:id="@+id/email_edit_text"
@@ -97,7 +93,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
-        android:layout_marginBottom="16dp"
+        android:layout_marginBottom="8dp"
         android:backgroundTint="#2196F3"
         android:text="Register"
         android:textColor="#FFFFFF"
@@ -106,6 +102,19 @@
         android:elevation="4dp"
         app:layout_constraintTop_toBottomOf="@id/password_edit_text"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <TextView
+        android:id="@+id/login_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:fontFamily="sans-serif"
+        android:text="Already registered? Log in here"
+        android:textColor="#2196F3"
+        android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/register_button" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
