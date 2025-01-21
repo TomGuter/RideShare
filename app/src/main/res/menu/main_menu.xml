@@ -6,34 +6,39 @@
     <item
         android:id="@+id/action_rides"
         android:title="Rides"
-        android:icon="@drawable/ic_rides"
+        android:icon="@drawable/home"
         android:orderInCategory="100"
+        app:showAsAction="always" />
+
+    <!-- User option in the toolbar -->
+    <item
+        android:id="@+id/action_user"
+        android:title="User"
+        android:icon="@drawable/user"
+        android:orderInCategory="101"
         app:showAsAction="always" />
 
     <!-- Add Ride option in the toolbar -->
     <item
         android:id="@+id/action_add_ride"
         android:title="Add Ride"
-        android:icon="@drawable/ic_add_ride"
-        android:orderInCategory="101"
+        android:icon="@drawable/add"
+        android:orderInCategory="102"
         app:showAsAction="always" />
 
     <!-- My Rides option in the toolbar -->
     <item
         android:id="@+id/action_my_rides"
         android:title="My Rides"
-        android:icon="@drawable/ic_my_rides"
-        android:orderInCategory="102"
+        android:icon="@drawable/car"
+        android:orderInCategory="103"
         app:showAsAction="always" />
 
     <!-- Logout option in the toolbar -->
     <item
         android:id="@+id/action_logout"
         android:title="Logout"
-        android:icon="@drawable/ic_logout"
-        android:orderInCategory="103"
+        android:icon="@drawable/logout"
+        android:orderInCategory="104"
         app:showAsAction="always" />
 </menu>
-
-
-

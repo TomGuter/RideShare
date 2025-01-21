@@ -14,23 +14,21 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.shareride.R
 import com.example.shareride.adapter.RideAdapter
-import com.example.shareride.data.Ride
 import com.example.shareride.databinding.FragmentRideBinding
-import com.google.firebase.firestore.FirebaseFirestore
+import com.example.shareride.model.Model
+import com.example.shareride.base.RidesCallback
+import com.example.shareride.base.EmptyCallback
+import com.example.shareride.model.Ride
 
 class RideFragment : Fragment() {
 
     private lateinit var rideRecyclerView: RecyclerView
     private lateinit var rideAdapter: RideAdapter
     private val rideList = mutableListOf<Ride>()
-    // Declare the list to hold pairs of Ride and its documentId
     private val rideWithIdList = mutableListOf<Pair<Ride, String>>()
-
-    private val firestore = FirebaseFirestore.getInstance()
 
     private lateinit var searchLocationEditText: EditText
     private lateinit var ratingFilterEditText: EditText
-
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -49,17 +47,12 @@ class RideFragment : Fragment() {
         rideRecyclerView.layoutManager = LinearLayoutManager(context)
         rideRecyclerView.adapter = rideAdapter
 
-        // Fetch rides from the database
         fetchRidesFromDatabase()
 
-
-
-        // Set up search functionality
         searchLocationEditText.addTextChangedListener {
             filterRides()
         }
 
-        // Set up rating filter
         ratingFilterEditText.addTextChangedListener {
             filterRides()
         }
@@ -67,65 +60,25 @@ class RideFragment : Fragment() {
         return binding.root
     }
 
-
     private fun fetchRidesFromDatabase() {
-        firestore.collection("rides")
-            .get()
-            .addOnSuccessListener { result ->
-                rideList.clear()
-                rideWithIdList.clear()
+        Model.shared.getAllRides { rides ->
+            rideList.clear()
+            rideWithIdList.clear()
 
-
-                for (document in result) {
-                    val ride = document.toObject(Ride::class.java)
-                    val documentId = document.id
-
-                    rideList.add(ride)
-                    rideWithIdList.add(Pair(ride, documentId))
-                }
-
-                rideWithIdList.forEach { rideWithId ->
-                    val ride = rideWithId.first
-                    val documentId = rideWithId.second
-                    // Perform any operations with `ride` and `documentId`
-                }
-
-                rideAdapter.notifyDataSetChanged() // Notify adapter that data has changed
+            rides.forEach { ride ->
+                rideList.add(ride)
+                rideWithIdList.add(Pair(ride, ride.userId))  // For example, using userId as the ID
             }
-            .addOnFailureListener { exception ->
-                Toast.makeText(requireContext(), "Error fetching rides: ${exception.message}", Toast.LENGTH_SHORT).show()
-            }
+
+            rideAdapter.notifyDataSetChanged() // Notify adapter that data has changed
+        }
     }
-
-
-
-//     Fetch rides from Firestore
-//    private fun fetchRidesFromDatabase() {
-//        firestore.collection("rides")
-//            .get()
-//            .addOnSuccessListener { result ->
-//                rideList.clear() // Clear the existing list to avoid duplicates
-//                for (document in result) {
-//                    val ride = document.toObject(Ride::class.java)
-//                    rideList.add(ride)
-//                }
-//
-//                rideAdapter.notifyDataSetChanged() // Notify adapter that data has changed
-//            }
-//            .addOnFailureListener { exception ->
-//                Toast.makeText(requireContext(), "Error fetching rides: ${exception.message}", Toast.LENGTH_SHORT).show()
-//            }
-//    }
-
-
 
     private fun filterRides() {
         val searchQuery = searchLocationEditText.text.toString().lowercase()
 
-        // Ensure the rating input is parsed correctly
         val selectedRating = ratingFilterEditText.text.toString().toFloatOrNull() ?: 0f
 
-        // Apply the filters (search and rating)
         val filteredRides = rideList.filter { ride ->
             val matchesLocation = (ride.routeFrom?.lowercase() ?: "").contains(searchQuery) ||
                     (ride.routeTo?.lowercase() ?: "").contains(searchQuery)
@@ -134,23 +87,19 @@ class RideFragment : Fragment() {
             matchesLocation && matchesRating
         }
 
-
         if (searchQuery.isEmpty() && selectedRating == 0f) {
             rideAdapter.updateRides(rideList) // Show all rides
         } else {
-            // Update the adapter with the filtered list
             rideAdapter.updateRides(filteredRides)
         }
     }
 
     private fun showRideDetails(ride: Ride) {
-        // Use SafeArgs to pass data
         val action = RideFragmentDirections
             .actionRideFragmentToRideDetailsFragment(
-                ride.name, ride.driverName, ride.routeFrom, ride.routeTo, ride.date, ride.departureTime, ride.rating
+                ride.name, ride.driverName, ride.routeFrom, ride.routeTo, ride.date, ride.departureTime, ride.rating, ride.vacantSeats
             )
 
         findNavController().navigate(action)
     }
 }
-

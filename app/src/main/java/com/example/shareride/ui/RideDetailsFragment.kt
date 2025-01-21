@@ -27,8 +27,8 @@ class RideDetailsFragment : Fragment() {
         val date = arguments?.getString("date")
         val departureTime = arguments?.getString("departure_time")
         val rating = arguments?.getFloat("rating", 0.0f)
+        val vacantSeats = arguments?.getInt("vacantSeats", 0)
 
-        // Finding the TextViews in the layout
         val rideNameTextView = view.findViewById<TextView>(R.id.ride_name_textview)
         val driverNameTextView = view.findViewById<TextView>(R.id.driver_name_textview)
         val departureLocationTextView = view.findViewById<TextView>(R.id.departure_location_textview)
@@ -36,6 +36,7 @@ class RideDetailsFragment : Fragment() {
         val rideDateTextView = view.findViewById<TextView>(R.id.ride_date_textview)
         val departureTimeTextView = view.findViewById<TextView>(R.id.departure_time_textview)
         val ratingTextView = view.findViewById<TextView>(R.id.rating_textview)
+        val vacantSeatsTextView = view.findViewById<TextView>(R.id.vacant_seats_textview)
 
         rideNameTextView.text = rideName
         driverNameTextView.text = "Driver: $driverName"
@@ -44,6 +45,7 @@ class RideDetailsFragment : Fragment() {
         rideDateTextView.text = "Date: $date"
         departureTimeTextView.text = "Departure Time: $departureTime"
         ratingTextView.text = "Rating: $rating"
+        vacantSeatsTextView.text = "Vacant Seats: $vacantSeats"
     }
 }
 

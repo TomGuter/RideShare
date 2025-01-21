@@ -56,7 +56,9 @@ dependencies {
 
     implementation(libs.room.runtime)
     implementation(libs.firebase.common.ktx)
-//    kapt(libs.androidx.room.compiler)
+    implementation(libs.firebase.dataconnect)
+    implementation(libs.firebase.storage.ktx)
+    kapt(libs.androidx.room.compiler)
     implementation(libs.androidx.room.ktx)
 
     implementation(libs.androidx.navigation.fragment.ktx)
@@ -73,6 +75,8 @@ dependencies {
 
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+
+//    implementation ("com.cloudinary:cloudinary-android:1.31.0")
 
 
 }

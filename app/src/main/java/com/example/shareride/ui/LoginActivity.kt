@@ -23,14 +23,20 @@ class LoginActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
 
-
         auth = FirebaseAuth.getInstance()
+
+        val currentUser = auth.currentUser
+        if (currentUser != null) {
+            val intent = Intent(this, MainActivity::class.java)
+            startActivity(intent)
+            finish()
+            return
+        }
 
         emailEditText = findViewById(R.id.email_edit_text)
         passwordEditText = findViewById(R.id.password_edit_text)
         loginButton = findViewById(R.id.login_button)
         registerButton = findViewById(R.id.register_button)
-
 
         loginButton.setOnClickListener {
             val email = emailEditText.text.toString()
@@ -65,26 +71,8 @@ class LoginActivity : AppCompatActivity() {
                     startActivity(intent)
                     finish()
                 } else {
-
                     Toast.makeText(this, "Login failed. Please check your credentials.", Toast.LENGTH_SHORT).show()
                 }
             }
     }
-
-
-    private fun registerUser(email: String, password: String) {
-        auth.createUserWithEmailAndPassword(email, password)
-            .addOnCompleteListener(this) { task ->
-                if (task.isSuccessful) {
-
-                    val user = auth.currentUser
-                    val intent = Intent(this, MainActivity::class.java)
-                    startActivity(intent)
-                    finish()
-                } else {
-                    Toast.makeText(this, "Registration failed.", Toast.LENGTH_SHORT).show()
-                }
-            }
-    }
 }
-
