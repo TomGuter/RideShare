@@ -1,14 +1,20 @@
 package com.example.shareride.ui
 
-import android.app.Activity
+import android.Manifest
 import android.content.Intent
-import android.net.Uri
+import android.content.pm.PackageManager
+import android.graphics.Bitmap
 import android.os.Bundle
-import android.provider.MediaStore
 import android.widget.*
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AlertDialog
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import com.example.shareride.MainActivity
 import com.example.shareride.R
+import com.example.shareride.model.Model
 import com.example.shareride.model.User
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -27,9 +33,12 @@ class RegisterActivity : AppCompatActivity() {
     private lateinit var auth: FirebaseAuth
     private lateinit var db: FirebaseFirestore
 
-    private var selectedImageUri: Uri? = null
-    private val PICK_IMAGE_REQUEST = 1
-    private val defaultAvatarUrl = "android.resource://com.example.shareride/${R.drawable.avatar}"
+    private var imageBitmap: Bitmap? = null
+    private val CAMERA_PERMISSION_REQUEST = 100
+
+    // Launchers for camera and gallery
+    private lateinit var cameraLauncher: ActivityResultLauncher<Void?>
+    private lateinit var galleryLauncher: ActivityResultLauncher<String>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -49,7 +58,26 @@ class RegisterActivity : AppCompatActivity() {
 
         avatarImageView.setImageResource(R.drawable.avatar)
 
-        addImageButton.setOnClickListener { pickImage() }
+        cameraLauncher = registerForActivityResult(ActivityResultContracts.TakePicturePreview()) { bitmap ->
+            if (bitmap != null) {
+                imageBitmap = bitmap
+                avatarImageView.setImageBitmap(bitmap)
+            } else {
+                Toast.makeText(this, "Failed to capture image.", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        galleryLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+            if (uri != null) {
+                avatarImageView.setImageURI(uri)
+            } else {
+                Toast.makeText(this, "No image selected.", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        addImageButton.setOnClickListener {
+            showImageOptionsDialog()
+        }
 
         registerButton.setOnClickListener {
             val firstName = firstNameEditText.text.toString()
@@ -58,7 +86,16 @@ class RegisterActivity : AppCompatActivity() {
             val password = passwordEditText.text.toString()
 
             if (firstName.isNotEmpty() && lastName.isNotEmpty() && email.isNotEmpty() && password.isNotEmpty()) {
-                registerUser(firstName, lastName, email, password)
+                Model.shared.registerUser(firstName, lastName, email, password, imageBitmap) { success, message ->
+                    if (success) {
+                        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+                        val intent = Intent(this, MainActivity::class.java)
+                        startActivity(intent)
+                        finish()
+                    } else {
+                        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+                    }
+                }
             } else {
                 Toast.makeText(this, "Please fill in all fields.", Toast.LENGTH_SHORT).show()
             }
@@ -71,51 +108,50 @@ class RegisterActivity : AppCompatActivity() {
         }
     }
 
-    private fun pickImage() {
-        val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
-        startActivityForResult(intent, PICK_IMAGE_REQUEST)
+    private fun showImageOptionsDialog() {
+        val options = mutableListOf("Choose from Gallery")
+
+        val hasCamera = packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY)
+        if (hasCamera) {
+            options.add("Take a Picture")
+        } else {
+            Toast.makeText(this, "No camera available.", Toast.LENGTH_SHORT).show()
+        }
+
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle("Select Image")
+        builder.setItems(options.toTypedArray()) { _, which ->
+            when (options[which]) {
+                "Choose from Gallery" -> openGallery()
+                "Take a Picture" -> checkCameraPermission()
+            }
+        }
+        builder.show()
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == PICK_IMAGE_REQUEST && resultCode == Activity.RESULT_OK && data != null) {
-            selectedImageUri = data.data
-            avatarImageView.setImageURI(selectedImageUri)
+
+    private fun openGallery() {
+        galleryLauncher.launch("image/*")
+    }
+
+    private fun checkCameraPermission() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+            launchCamera()
+        } else {
+            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.CAMERA), CAMERA_PERMISSION_REQUEST)
         }
     }
 
-    private fun registerUser(firstName: String, lastName: String, email: String, password: String) {
-        auth.createUserWithEmailAndPassword(email, password)
-            .addOnCompleteListener(this) { task ->
-                if (task.isSuccessful) {
-                    val user = auth.currentUser
+    private fun launchCamera() {
+        cameraLauncher.launch(null)
+    }
 
-                    val pictureUrl = selectedImageUri?.toString() ?: defaultAvatarUrl
-
-                    val newUser = User(
-                        id = user?.uid ?: "",
-                        firstName = firstName,
-                        lastName = lastName,
-                        email = email,
-                        pictureUrl = pictureUrl
-                    )
-
-                    user?.let {
-                        db.collection("users").document(it.uid)
-                            .set(newUser.json)
-                            .addOnSuccessListener {
-                                Toast.makeText(this, "Registration successful!", Toast.LENGTH_SHORT).show()
-                                val intent = Intent(this, MainActivity::class.java)
-                                startActivity(intent)
-                                finish()
-                            }
-                            .addOnFailureListener { e ->
-                                Toast.makeText(this, "Error saving user data: ${e.message}", Toast.LENGTH_SHORT).show()
-                            }
-                    }
-                } else {
-                    Toast.makeText(this, "Registration failed: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
-                }
-            }
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == CAMERA_PERMISSION_REQUEST && grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            launchCamera()
+        } else {
+            Toast.makeText(this, "Camera permission is required to take pictures.", Toast.LENGTH_SHORT).show()
+        }
     }
 }

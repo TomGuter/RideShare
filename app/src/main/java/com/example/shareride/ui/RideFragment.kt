@@ -25,7 +25,6 @@ class RideFragment : Fragment() {
     private lateinit var rideRecyclerView: RecyclerView
     private lateinit var rideAdapter: RideAdapter
     private val rideList = mutableListOf<Ride>()
-    private val rideWithIdList = mutableListOf<Pair<Ride, String>>()
 
     private lateinit var searchLocationEditText: EditText
     private lateinit var ratingFilterEditText: EditText
@@ -49,12 +48,34 @@ class RideFragment : Fragment() {
 
         fetchRidesFromDatabase()
 
-        searchLocationEditText.addTextChangedListener {
-            filterRides()
+
+        var previousSearchQuery: String = ""
+        var previousRatingQuery: String = ""
+
+        searchLocationEditText.addTextChangedListener { editable ->
+            val currentQuery = editable.toString()
+
+            if (currentQuery.isEmpty()) {
+                resetList()
+            } else {
+                applyFilters()
+            }
+
+            previousSearchQuery = currentQuery
         }
 
-        ratingFilterEditText.addTextChangedListener {
-            filterRides()
+
+
+        ratingFilterEditText.addTextChangedListener { editable ->
+            val currentQuery = editable.toString()
+
+            if (currentQuery.isEmpty()) {
+                resetList()
+            } else {
+                applyFilters()
+            }
+
+            previousRatingQuery = currentQuery
         }
 
         return binding.root
@@ -63,43 +84,47 @@ class RideFragment : Fragment() {
     private fun fetchRidesFromDatabase() {
         Model.shared.getAllRides { rides ->
             rideList.clear()
-            rideWithIdList.clear()
 
             rides.forEach { ride ->
                 rideList.add(ride)
-                rideWithIdList.add(Pair(ride, ride.userId))  // For example, using userId as the ID
             }
 
-            rideAdapter.notifyDataSetChanged() // Notify adapter that data has changed
+            rideAdapter.notifyDataSetChanged()
         }
     }
 
-    private fun filterRides() {
-        val searchQuery = searchLocationEditText.text.toString().lowercase()
-
-        val selectedRating = ratingFilterEditText.text.toString().toFloatOrNull() ?: 0f
+    private fun applyFilters() {
+        val query = searchLocationEditText.text.toString().trim().lowercase()
+        val minimumRating = ratingFilterEditText.text.toString().toFloatOrNull() ?: 0f
 
         val filteredRides = rideList.filter { ride ->
-            val matchesLocation = (ride.routeFrom?.lowercase() ?: "").contains(searchQuery) ||
-                    (ride.routeTo?.lowercase() ?: "").contains(searchQuery)
-            val matchesRating = ride.rating >= selectedRating
+            val matchesLocation = ride.routeFrom?.contains(query, ignoreCase = true) == true ||
+                    ride.routeTo?.contains(query, ignoreCase = true) == true
+            val matchesRating = ride.rating >= minimumRating
 
             matchesLocation && matchesRating
         }
 
-        if (searchQuery.isEmpty() && selectedRating == 0f) {
-            rideAdapter.updateRides(rideList) // Show all rides
-        } else {
-            rideAdapter.updateRides(filteredRides)
-        }
+        rideAdapter.updateRides(
+            if (query.isEmpty() && minimumRating == 0f) rideList else filteredRides
+        )
+    }
+
+
+    private fun resetList() {
+        fetchRidesFromDatabase()
     }
 
     private fun showRideDetails(ride: Ride) {
         val action = RideFragmentDirections
             .actionRideFragmentToRideDetailsFragment(
-                ride.name, ride.driverName, ride.routeFrom, ride.routeTo, ride.date, ride.departureTime, ride.rating, ride.vacantSeats
+                ride.name, ride.driverName, ride.routeFrom, ride.routeTo, ride.date, ride.departureTime, ride.rating, ride.ratingCount,
+                ride.ratingSum, ride.vacantSeats, ride.userId, ride.id,
             )
 
         findNavController().navigate(action)
     }
+
+
+
 }

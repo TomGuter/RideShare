@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    tools:context="ui.RideDetailsFragment">
+    tools:context="com.example.shareride.ui.RideDetailsFragment">
 
     <ImageView
         android:id="@+id/driver_image"
@@ -14,14 +14,14 @@
         android:layout_marginTop="16dp"
         android:src="@drawable/avatar"
         android:contentDescription="Driver's Avatar"
-        android:layout_marginEnd="16dp"
-        android:layout_alignParentStart="true"
-        android:layout_gravity="center_vertical"
         android:scaleType="centerCrop"
         android:background="@drawable/circle_background"
+        android:clipToOutline="true"
+        android:outlineProvider="background"
         android:elevation="4dp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
+
 
     <TextView
         android:id="@+id/ride_name_textview"
@@ -126,5 +126,43 @@
         android:layout_marginTop="8dp"
         android:ellipsize="end"
         android:maxLines="1" />
+
+    <LinearLayout
+        android:id="@+id/rating_stars_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="12dp"
+        android:orientation="horizontal"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/vacant_seats_textview">
+
+        <RatingBar
+            android:id="@+id/driver_rating_bar"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:isIndicator="false"
+            android:minHeight="30dip"
+            android:numStars="5"
+            android:rating="4.0"
+            android:stepSize="0.5"
+            tools:layout_editor_absoluteX="26dp"
+            tools:layout_editor_absoluteY="232dp" />
+
+        <Button
+            android:id="@+id/rate_driver_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:backgroundTint="#7C7C78"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:text="Rate Driver"
+            android:textColor="#FFFFFF"
+            android:textSize="12sp"
+            tools:layout_editor_absoluteX="282dp"
+            tools:layout_editor_absoluteY="245dp" />
+    </LinearLayout>
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

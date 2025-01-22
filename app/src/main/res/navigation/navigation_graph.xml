@@ -48,8 +48,22 @@
             android:name="rating"
             app:argType="float" />
         <argument
+            android:name="ratingCount"
+            app:argType="integer" />
+        <argument
+            android:name="ratingSum"
+            app:argType="float" />
+        <argument
             android:name="vacantSeats"
             app:argType="integer" />
+        <argument
+            android:name="userId"
+            app:argType="string" />
+        <argument
+            android:name="id"
+            app:argType="string" />
+
+
     </fragment>
 
     <!-- Add Ride Fragment -->

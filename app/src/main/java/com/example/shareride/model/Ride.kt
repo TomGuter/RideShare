@@ -12,7 +12,9 @@ data class Ride(
     val routeTo: String = "",
     val date: String = "",
     val departureTime: String = "",
-    val rating: Float = 0f,
+    val ratingSum: Float = 0f,
+    val ratingCount: Int = 0,
+    val rating: Float = if (ratingCount == 0) 0f else String.format("%.2f", ratingSum / ratingCount).toFloat(),
     val userId: String = "",
     val latitude: Double = 0.0,
     val longitude: Double = 0.0,
@@ -28,6 +30,8 @@ data class Ride(
         private const val ROUTE_TO_KEY = "routeTo"
         private const val DATE_KEY = "date"
         private const val DEPARTURE_TIME_KEY = "departureTime"
+        private const val RATING_SUM_KEY = "ratingSum"
+        private const val RATING_COUNT_KEY = "ratingCount"
         private const val RATING_KEY = "rating"
         private const val USER_ID_KEY = "userId"
         private const val LATITUDE_KEY = "latitude"
@@ -42,7 +46,9 @@ data class Ride(
             val routeTo = json[ROUTE_TO_KEY] as? String ?: ""
             val date = json[DATE_KEY] as? String ?: ""
             val departureTime = json[DEPARTURE_TIME_KEY] as? String ?: ""
-            val rating = (json[RATING_KEY] as? Number)?.toFloat() ?: 0f
+            val ratingSum = (json[RATING_SUM_KEY] as? Number)?.toFloat() ?: 0f
+            val ratingCount = (json[RATING_COUNT_KEY] as? Number)?.toInt() ?: 0
+            val rating = if (ratingCount == 0) 0f else String.format("%.2f", ratingSum / ratingCount).toFloat()
             val userId = json[USER_ID_KEY] as? String ?: ""
             val latitude = (json[LATITUDE_KEY] as? Number)?.toDouble() ?: 0.0
             val longitude = (json[LONGITUDE_KEY] as? Number)?.toDouble() ?: 0.0
@@ -56,6 +62,8 @@ data class Ride(
                 routeTo = routeTo,
                 date = date,
                 departureTime = departureTime,
+                ratingSum = ratingSum,
+                ratingCount = ratingCount,
                 rating = rating,
                 userId = userId,
                 latitude = latitude,
@@ -75,6 +83,8 @@ data class Ride(
                 ROUTE_TO_KEY to routeTo,
                 DATE_KEY to date,
                 DEPARTURE_TIME_KEY to departureTime,
+                RATING_SUM_KEY to ratingSum,
+                RATING_COUNT_KEY to ratingCount,
                 RATING_KEY to rating,
                 USER_ID_KEY to userId,
                 LATITUDE_KEY to latitude,
