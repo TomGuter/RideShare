@@ -14,11 +14,19 @@ class CustomInfoWindow(mapView: MapView, private val activity: MainActivity) : I
 
     override fun onOpen(item: Any?) {
         val marker = item as Marker
-        val rideInfo = mView.findViewById<TextView>(R.id.ride_info)
+        val ride = marker.relatedObject as? Ride
+
+        val rideFromTextView = mView.findViewById<TextView>(R.id.ride_from)
+        val rideToTextView = mView.findViewById<TextView>(R.id.ride_to)
+        val departureTextView = mView.findViewById<TextView>(R.id.departure)
         val viewRideButton = mView.findViewById<Button>(R.id.view_ride_button)
         val closeInfoWindowButton = mView.findViewById<Button>(R.id.close_button)
 
-        rideInfo.text = marker.title
+        if (ride != null) {
+            rideFromTextView.text = "Ride from: ${ride.routeFrom}"
+            rideToTextView.text = "Ride to: ${ride.routeTo}"
+            departureTextView.text = "Departure: ${ride.departureTime}"
+        }
 
         closeInfoWindowButton.setOnClickListener {
             close()

@@ -25,6 +25,9 @@ import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Marker
 import org.osmdroid.views.overlay.infowindow.InfoWindow
+import android.os.Handler
+import android.os.Looper
+
 
 class MainActivity : AppCompatActivity() {
 
@@ -68,14 +71,29 @@ class MainActivity : AppCompatActivity() {
         addDefaultMarker(startPoint)
 
         map.addMapListener(object : MapListener {
+            private val handler = Handler(Looper.getMainLooper())
+            private val loadingDelay = 1000L
+
             override fun onScroll(event: ScrollEvent?): Boolean {
-                progressBar.visibility = View.GONE
-                return false
+                progressBar.visibility = View.VISIBLE
+
+                handler.removeCallbacksAndMessages(null)
+                handler.postDelayed({
+                    progressBar.visibility = View.GONE
+                }, loadingDelay)
+
+                return true
             }
 
             override fun onZoom(event: ZoomEvent?): Boolean {
-                progressBar.visibility = View.GONE
-                return false
+                progressBar.visibility = View.VISIBLE
+
+                handler.removeCallbacksAndMessages(null)
+                handler.postDelayed({
+                    progressBar.visibility = View.GONE
+                }, loadingDelay)
+
+                return true
             }
         })
 
@@ -155,7 +173,7 @@ class MainActivity : AppCompatActivity() {
             val geoPoint = GeoPoint(ride.latitude, ride.longitude)
             marker.position = geoPoint
             marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
-            marker.title = "Ride from ${ride.routeFrom} to ${ride.routeTo}"
+//            marker.title = "Ride from: ${ride.routeFrom} Ride to: ${ride.routeTo} Departure: ${ride.departureTime}"
             marker.infoWindow = CustomInfoWindow(map, this)
             marker.relatedObject = ride
 
@@ -179,47 +197,44 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun fetchRidesFromDatabase() {
-        val db = FirebaseFirestore.getInstance()
         val rides = mutableListOf<Ride>()
-
         Model.shared.getAllRides { ridesList ->
-            rides.addAll(ridesList)
+            ridesList.forEach { ride ->
+                rides.add(ride)
+            }
+        }
 
-            db.collection("rides")
-                .addSnapshotListener { snapshots, error ->
-                    if (error != null) {
-                        Toast.makeText(this, "Error: ${error.message}", Toast.LENGTH_SHORT).show()
-                        progressBar.visibility = View.GONE
-                        return@addSnapshotListener
-                    }
-
-                    if (snapshots != null) {
-                        rides.clear() // Clear the list to avoid duplicating entries
-                        for (document in snapshots.documents) {
-                            rides.add(
-                                Ride(
-                                    id = document.getString("id") ?: "",
-                                    name = document.getString("name") ?: "",
-                                    driverName = document.getString("driverName") ?: "",
-                                    routeFrom = document.getString("routeFrom") ?: "",
-                                    routeTo = document.getString("routeTo") ?: "",
-                                    date = document.getString("date") ?: "",
-                                    departureTime = document.getString("departureTime") ?: "",
-                                    ratingSum = document.getDouble("ratingSum")?.toFloat() ?: 0f,
-                                    ratingCount = document.getLong("ratingCount")?.toInt() ?: 0,
-                                    userId = document.getString("userId") ?: "",
-                                    latitude = document.getDouble("latitude") ?: 0.0,
-                                    longitude = document.getDouble("longitude") ?: 0.0,
-                                    vacantSeats = document.getLong("vacantSeats")?.toInt() ?: 0,
-                                    joinedUsers = (document.get("joinedUsers") as? List<*>)?.mapNotNull { it as? String } ?: emptyList()
-                                )
+        val db = FirebaseFirestore.getInstance()
+        db.collection("rides")
+            .get()
+            .addOnSuccessListener { result ->
+                for (document in result) {
+                    with(document) {
+                        rides.add(
+                            Ride(
+                                id = getString("id") ?: "",
+                                name = getString("name") ?: "",
+                                driverName = getString("driverName") ?: "",
+                                routeFrom = getString("routeFrom") ?: "",
+                                routeTo = getString("routeTo") ?: "",
+                                date = getString("date") ?: "",
+                                departureTime = getString("departureTime") ?: "",
+                                ratingSum = getDouble("ratingSum")?.toFloat() ?: 0f,
+                                ratingCount = getLong("ratingCount")?.toInt() ?: 0,
+                                userId = getString("userId") ?: "",
+                                latitude = getDouble("latitude") ?: 0.0,
+                                longitude = getDouble("longitude") ?: 0.0,
+                                vacantSeats = getLong("vacantSeats")?.toInt() ?: 0,
+                                joinedUsers = (get("joinedUsers") as? List<*>)?.mapNotNull { it as? String } ?: emptyList()
                             )
-                        }
-
-                        updateMapWithRides(rides)
+                        )
                     }
                 }
-        }
+                updateMapWithRides(rides)
+            }
+            .addOnFailureListener { e ->
+                Toast.makeText(this, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
     }
 
     private fun updateMapWithResults(results: List<GeoPoint>) {

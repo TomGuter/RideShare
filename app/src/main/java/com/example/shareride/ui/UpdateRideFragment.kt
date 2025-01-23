@@ -12,7 +12,7 @@ import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.example.shareride.R
-import com.example.shareride.data.Ride
+import com.example.shareride.model.Ride
 import com.example.shareride.viewmodel.RideViewModel
 
 class UpdateRideFragment : Fragment() {
@@ -24,6 +24,14 @@ class UpdateRideFragment : Fragment() {
     private lateinit var rideTo: String
     private lateinit var rideDate: String
     private lateinit var rideTime: String
+    private var ratingSum: Float = 0f
+    private var ratingCount: Int = 0
+    private var rating: Float = 0f
+    private lateinit var userId: String
+    private var latitude: Double = 0.0
+    private var longitude: Double = 0.0
+    private var vacantSeats: Int = 0
+    private var joinedUsers: ArrayList<String> = arrayListOf()
 
     private lateinit var rideViewModel: RideViewModel
     override fun onCreateView(
@@ -47,6 +55,14 @@ class UpdateRideFragment : Fragment() {
             rideTo = it.getString("ride_to", "")
             rideDate = it.getString("ride_date", "")
             rideTime = it.getString("ride_time", "")
+            ratingSum = it.getFloat("rating_sum", 0f)
+            ratingCount = it.getInt("rating_count", 0)
+            rating = it.getFloat("rating", 0f)
+            userId = it.getString("user_id", "")
+            latitude = it.getDouble("latitude", 0.0)
+            longitude = it.getDouble("longitude", 0.0)
+            vacantSeats = it.getInt("vacant_seats", 0)
+            joinedUsers = it.getStringArrayList("joined_users") ?: arrayListOf()
         }
 
         // Populate the fields with the current ride data
@@ -67,6 +83,7 @@ class UpdateRideFragment : Fragment() {
             val updatedRideDate = view.findViewById<EditText>(R.id.editTextRideDate).text.toString()
             val updatedRideTime = view.findViewById<EditText>(R.id.editTextRideTime).text.toString()
 
+
             // Handle the save logic (e.g., update the ride in the database)
             saveRide(updatedRideName, updatedDriverName, updatedRideFrom, updatedRideTo, updatedRideDate, updatedRideTime)
         }
@@ -86,20 +103,20 @@ class UpdateRideFragment : Fragment() {
         }
 
         // Create an updated Ride object with the new values
-        val updatedRide = Ride(
-            name = name,
-            driverName = driver,
-            routeFrom = from,
-            routeTo = to,
-            date = date,
-            departureTime = time
-        )
+//        val updatedRide = Ride(
+//            name = name,
+//            driverName = driver,
+//            routeFrom = from,
+//            routeTo = to,
+//            date = date,
+//            departureTime = time
+//        )
 
         // Log before calling ViewModel
         Log.d("SaveRide", "Calling ViewModel to update ride with ID: $documentId")
 
         // Update the ride in Firestore through the ViewModel
-        rideViewModel.updateRide(documentId, updatedRide)
+//        rideViewModel.updateRide(documentId, updatedRide)
 
         // Show success message
         Toast.makeText(requireContext(), "Ride updated successfully!", Toast.LENGTH_SHORT).show()

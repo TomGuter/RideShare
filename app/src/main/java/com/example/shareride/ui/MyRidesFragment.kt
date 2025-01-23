@@ -13,7 +13,9 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.shareride.R
 import com.example.shareride.adapter.MyRidesAdapter
-import com.example.shareride.data.Ride
+import com.example.shareride.model.Model
+import com.example.shareride.model.Ride
+import com.example.shareride.model.User
 import com.example.shareride.viewmodel.RideViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -36,7 +38,7 @@ class MyRidesFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
 
-        rideViewModel = ViewModelProvider(this).get(RideViewModel::class.java)
+        rideViewModel = ViewModelProvider(this)[RideViewModel::class.java]
 
 
         firestore = FirebaseFirestore.getInstance()
@@ -49,7 +51,7 @@ class MyRidesFragment : Fragment() {
         rideAdapter = MyRidesAdapter(
             mutableListOf(),
             onDeleteClick = { ride -> deleteRide(ride) },
-            onEditClick = { ride -> editRide(ride) }
+            onUpdateClick = { ride -> updateRide(ride) }
         )
         recyclerView.adapter = rideAdapter
 
@@ -69,48 +71,34 @@ class MyRidesFragment : Fragment() {
     private fun fetchRidesFromDatabase() {
         val userId = FirebaseAuth.getInstance().currentUser?.uid
         if (userId != null) {
-            firestore.collection("rides")
-                .whereEqualTo("userId", userId) // מסנן לפי userId
-                .get()
-                .addOnSuccessListener { result ->
-                    rideWithIdList.clear()
-
-                    for (document in result) {
-                        val ride = document.toObject(Ride::class.java)
-                        val documentId = document.id
-                        rideWithIdList.add(Pair(ride, documentId))
-                    }
-
-                    rideAdapter.updateRides(rideWithIdList.map { it.first })
+            Model.shared.getRidesByUserId(userId) { rides ->
+                rideWithIdList.clear()
+                for (ride in rides) {
+                    val documentId = ride.id
+                    rideWithIdList.add(Pair(ride, documentId))
                 }
-                .addOnFailureListener { exception ->
-                    Toast.makeText(requireContext(), "Error fetching rides: ${exception.message}", Toast.LENGTH_SHORT).show()
-                }
+                rideAdapter.updateRides(rideWithIdList.map { it.first })
+            }
         } else {
             Toast.makeText(requireContext(), "User not logged in", Toast.LENGTH_SHORT).show()
         }
-
     }
+
 
 
     private fun deleteRide(ride: Ride) {
         val documentId = rideWithIdList.find { it.first == ride }?.second
-
         if (documentId != null) {
-            firestore.collection("rides").document(documentId).delete()
-                .addOnSuccessListener {
-                    Toast.makeText(requireContext(), "Ride deleted successfully!", Toast.LENGTH_SHORT).show()
-                    fetchRidesFromDatabase() // Refresh the list after deletion
-                }
-                .addOnFailureListener { exception ->
-                    Toast.makeText(requireContext(), "Error deleting ride: ${exception.message}", Toast.LENGTH_SHORT).show()
-                }
+            Model.shared.deleteRide(ride.id) {
+                Toast.makeText(requireContext(), "Ride deleted successfully!", Toast.LENGTH_SHORT).show()
+                fetchRidesFromDatabase()
+            }
         } else {
             Toast.makeText(requireContext(), "Ride not found!", Toast.LENGTH_SHORT).show()
         }
     }
 
-    private fun editRide(ride: Ride) {
+    private fun updateRide(ride: Ride) {
         val documentId = rideWithIdList.find { it.first == ride }?.second
 
         if (documentId != null) {
@@ -122,6 +110,15 @@ class MyRidesFragment : Fragment() {
                 putString("ride_to", ride.routeTo)
                 putString("ride_date", ride.date)
                 putString("ride_time", ride.departureTime)
+                putFloat("rating_sum", ride.ratingSum)
+                putInt("rating_count", ride.ratingCount)
+                putFloat("rating", ride.rating)
+                putString("user_id", ride.userId)
+                putDouble("latitude", ride.latitude)
+                putDouble("longitude", ride.longitude)
+                putInt("vacant_seats", ride.vacantSeats)
+                putStringArrayList("joined_users", ArrayList(ride.joinedUsers))
+                putString("ride_id", ride.id)
 
             }
 
@@ -130,11 +127,6 @@ class MyRidesFragment : Fragment() {
             Toast.makeText(requireContext(), "Unable to edit this ride.", Toast.LENGTH_SHORT).show()
         }
     }
-
-
-
-
-
 
 
 }

@@ -15,12 +15,17 @@ class Model private constructor() {
         val shared = Model()
     }
 
+
     fun getCurrentUserId(): String? {
         return firebaseModel.getCurrentUserId()
     }
 
     fun getAllRides(callback: RidesCallback) {
         firebaseModel.getAllRides(callback)
+    }
+
+    fun getRidesByUserId(userId: String, callback: RidesCallback) {
+        firebaseModel.getRidesByUserId(userId, callback)
     }
 
 
