@@ -1,5 +1,7 @@
-package com.example.shareride.ui
-
-interface OnFetchRidesListener {
-    fun fetchRidesFromDatabase()
-}
+//package com.example.shareride.ui
+//
+//import androidx.fragment.app.Fragment
+//
+//interface OnFetchRidesListener {
+//    fun fetchRidesFromDatabase()
+//}

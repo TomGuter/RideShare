@@ -14,7 +14,6 @@ import androidx.navigation.fragment.NavHostFragment
 import com.example.shareride.ui.LoginActivity
 import com.example.shareride.model.Ride
 import com.example.shareride.model.Model
-import com.example.shareride.ui.OnFetchRidesListener
 import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -25,15 +24,14 @@ import org.osmdroid.events.ZoomEvent
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Marker
+import org.osmdroid.views.overlay.infowindow.InfoWindow
 
+class MainActivity : AppCompatActivity() {
 
-
-class MainActivity : AppCompatActivity(), OnFetchRidesListener {
-
-    private lateinit var navController: NavController
+    lateinit var navController: NavController
     private lateinit var map: MapView
     private lateinit var progressBar: ProgressBar
-
+    private var currentInfoWindow: InfoWindow? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,8 +42,7 @@ class MainActivity : AppCompatActivity(), OnFetchRidesListener {
         val toolbar: Toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
 
-        val navHostFragment =
-            supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
+        val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
         navController = navHostFragment.navController
 
         if (isUserLoggedIn()) {
@@ -57,24 +54,18 @@ class MainActivity : AppCompatActivity(), OnFetchRidesListener {
         progressBar = findViewById(R.id.progressBar)
         map = findViewById(R.id.map)
 
-        Configuration.getInstance().load(applicationContext, android.preference.PreferenceManager.getDefaultSharedPreferences(applicationContext))
-        map = findViewById(R.id.map)
+        Configuration.getInstance().load(
+            applicationContext,
+            android.preference.PreferenceManager.getDefaultSharedPreferences(applicationContext)
+        )
         map.setMultiTouchControls(true)
-
-        progressBar.visibility = View.VISIBLE
 
 
         val startPoint = GeoPoint(32.0853, 34.7818)
         map.controller.setZoom(12.0)
         map.controller.setCenter(startPoint)
 
-
-        val marker = Marker(map)
-        marker.position = startPoint
-        marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
-        marker.title = "Tel Aviv"
-        map.overlays.add(marker)
-
+        addDefaultMarker(startPoint)
 
         map.addMapListener(object : MapListener {
             override fun onScroll(event: ScrollEvent?): Boolean {
@@ -98,12 +89,11 @@ class MainActivity : AppCompatActivity(), OnFetchRidesListener {
 
     override fun onPause() {
         super.onPause()
-        map.onPause() // osmdroid
+        map.onPause()
     }
 
     private fun isUserLoggedIn(): Boolean {
-        val user = FirebaseAuth.getInstance().currentUser
-        return user != null
+        return FirebaseAuth.getInstance().currentUser != null
     }
 
     private fun openLoginActivity() {
@@ -145,65 +135,92 @@ class MainActivity : AppCompatActivity(), OnFetchRidesListener {
         }
     }
 
+    private fun addDefaultMarker(startPoint: GeoPoint) {
+        val marker = Marker(map)
+        marker.position = startPoint
+        marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
+        marker.title = "Tel Aviv"
+        map.overlays.add(marker)
+    }
 
     private fun updateMapWithRides(rides: List<Ride>) {
         map.overlays.clear()
+        if (rides.isEmpty()) {
+            Toast.makeText(this, "No rides found", Toast.LENGTH_SHORT).show()
+            return
+        }
+
         for (ride in rides) {
             val marker = Marker(map)
             val geoPoint = GeoPoint(ride.latitude, ride.longitude)
             marker.position = geoPoint
             marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
-            marker.title = "ride from- ${ride.routeFrom} to-${ride.routeTo}"
+            marker.title = "Ride from ${ride.routeFrom} to ${ride.routeTo}"
+            marker.infoWindow = CustomInfoWindow(map, this)
+            marker.relatedObject = ride
+
+            marker.setOnMarkerClickListener { m, _ ->
+                if (m.isInfoWindowOpen) {
+                    m.closeInfoWindow()
+                    currentInfoWindow = null
+                } else {
+                    currentInfoWindow?.close()
+                    m.showInfoWindow()
+                    currentInfoWindow = m.infoWindow
+                }
+                true
+            }
+
             map.overlays.add(marker)
         }
 
-        if (rides.isNotEmpty()) {
-            map.controller.setCenter(GeoPoint(rides[0].latitude, rides[0].longitude))
-            map.controller.setZoom(12.0)
-        }
+        map.controller.setCenter(GeoPoint(rides[0].latitude, rides[0].longitude))
+        map.controller.setZoom(12.0)
     }
 
-    override fun fetchRidesFromDatabase() {
-        val rides = mutableListOf<Ride>()
-        Model.shared.getAllRides { ridesList ->
-            ridesList.forEach { ride ->
-                rides.add(ride)
-            }
-        }
-
+    private fun fetchRidesFromDatabase() {
         val db = FirebaseFirestore.getInstance()
-        db.collection("rides")
-            .get()
-            .addOnSuccessListener { result ->
-                for (document in result) {
-                    with(document) {
-                        rides.add(
-                            Ride(
-                                id = getString("id") ?: "",
-                                name = getString("name") ?: "",
-                                driverName = getString("driverName") ?: "",
-                                routeFrom = getString("routeFrom") ?: "",
-                                routeTo = getString("routeTo") ?: "",
-                                date = getString("date") ?: "",
-                                departureTime = getString("departureTime") ?: "",
-                                ratingSum = getDouble("ratingSum")?.toFloat() ?: 0f,
-                                ratingCount = getLong("ratingCount")?.toInt() ?: 0,
-                                userId = getString("userId") ?: "",
-                                latitude = getDouble("latitude") ?: 0.0,
-                                longitude = getDouble("longitude") ?: 0.0,
-                                vacantSeats = getLong("vacantSeats")?.toInt() ?: 0,
-                                joinedUsers = (get("joinedUsers") as? List<*>)?.mapNotNull { it as? String } ?: emptyList()
+        val rides = mutableListOf<Ride>()
+
+        Model.shared.getAllRides { ridesList ->
+            rides.addAll(ridesList)
+
+            db.collection("rides")
+                .addSnapshotListener { snapshots, error ->
+                    if (error != null) {
+                        Toast.makeText(this, "Error: ${error.message}", Toast.LENGTH_SHORT).show()
+                        progressBar.visibility = View.GONE
+                        return@addSnapshotListener
+                    }
+
+                    if (snapshots != null) {
+                        rides.clear() // Clear the list to avoid duplicating entries
+                        for (document in snapshots.documents) {
+                            rides.add(
+                                Ride(
+                                    id = document.getString("id") ?: "",
+                                    name = document.getString("name") ?: "",
+                                    driverName = document.getString("driverName") ?: "",
+                                    routeFrom = document.getString("routeFrom") ?: "",
+                                    routeTo = document.getString("routeTo") ?: "",
+                                    date = document.getString("date") ?: "",
+                                    departureTime = document.getString("departureTime") ?: "",
+                                    ratingSum = document.getDouble("ratingSum")?.toFloat() ?: 0f,
+                                    ratingCount = document.getLong("ratingCount")?.toInt() ?: 0,
+                                    userId = document.getString("userId") ?: "",
+                                    latitude = document.getDouble("latitude") ?: 0.0,
+                                    longitude = document.getDouble("longitude") ?: 0.0,
+                                    vacantSeats = document.getLong("vacantSeats")?.toInt() ?: 0,
+                                    joinedUsers = (document.get("joinedUsers") as? List<*>)?.mapNotNull { it as? String } ?: emptyList()
+                                )
                             )
-                        )
+                        }
+
+                        updateMapWithRides(rides)
                     }
                 }
-                updateMapWithRides(rides)
-            }
-            .addOnFailureListener { e ->
-                Toast.makeText(this, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
-            }
+        }
     }
-
 
     private fun updateMapWithResults(results: List<GeoPoint>) {
         map.overlays.clear()
@@ -211,14 +228,12 @@ class MainActivity : AppCompatActivity(), OnFetchRidesListener {
             val marker = Marker(map)
             marker.position = location
             marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
-            marker.title = "location"
+            marker.title = "Location"
             map.overlays.add(marker)
         }
         if (results.isNotEmpty()) {
             map.controller.setCenter(results[0])
-            map.controller.setZoom(14.0) // zoom
+            map.controller.setZoom(14.0)
         }
     }
 }
-
-
