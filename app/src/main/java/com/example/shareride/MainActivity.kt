@@ -139,7 +139,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun fetchRidesFromDatabase() {
-        val rides = mutableListOf<Ride>() // רשימה שתכיל את כל הנסיעות
+        val rides = mutableListOf<Ride>()
         val db = FirebaseFirestore.getInstance() // חיבור ל-Firebase Firestore
 
         db.collection("rides")
@@ -168,11 +168,11 @@ class MainActivity : AppCompatActivity() {
 
                 }
 
-                // עדכון המפה עם כל הנסיעות
+
                 updateMapWithRides(rides)
             }
             .addOnFailureListener { e ->
-                Toast.makeText(this, "שגיאה בטעינת הנסיעות: ${e.message}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "error: ${e.message}", Toast.LENGTH_SHORT).show()
             }
     }
 
@@ -183,7 +183,7 @@ class MainActivity : AppCompatActivity() {
             val marker = Marker(map)
             marker.position = location
             marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
-            marker.title = "מיקום שנמצא"
+            marker.title = "location"
             map.overlays.add(marker)
         }
         if (results.isNotEmpty()) {
