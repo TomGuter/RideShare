@@ -20,16 +20,16 @@ import java.util.*
 
 class AddRideFragment : Fragment() {
 
-    private lateinit var fetchRidesListener: OnFetchRidesListener
+//    private lateinit var fetchRidesListener: OnFetchRidesListener
 
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        if (context is OnFetchRidesListener) {
-            fetchRidesListener = context
-        } else {
-            throw RuntimeException("$context must implement OnFetchRidesListener")
-        }
-    }
+//    override fun onAttach(context: Context) {
+//        super.onAttach(context)
+//        if (context is OnFetchRidesListener) {
+//            fetchRidesListener = context
+//        } else {
+//            throw RuntimeException("$context must implement OnFetchRidesListener")
+//        }
+//    }
 
     private lateinit var rideNameInput: TextInputEditText
     private lateinit var driverNameInput: TextInputEditText
@@ -37,7 +37,7 @@ class AddRideFragment : Fragment() {
     private lateinit var routeToInput: TextInputEditText
     private lateinit var dateInput: TextInputEditText
     private lateinit var departureTimeInput: TextInputEditText
-    private lateinit var vacantSeatsInput: TextInputEditText  // New field for vacant seats
+    private lateinit var vacantSeatsInput: TextInputEditText
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -51,7 +51,7 @@ class AddRideFragment : Fragment() {
         routeToInput = view.findViewById(R.id.route_to_input)
         dateInput = view.findViewById(R.id.date_input)
         departureTimeInput = view.findViewById(R.id.departure_time_input)
-        vacantSeatsInput = view.findViewById(R.id.vacant_seats_input)  // Initialize vacant seats input
+        vacantSeatsInput = view.findViewById(R.id.vacant_seats_input)
 
         dateInput.setOnClickListener {
             showDatePicker()
@@ -66,7 +66,7 @@ class AddRideFragment : Fragment() {
             if (ride != null) {
                 getCoordinatesAndAddRide(ride)
 
-                fetchRidesListener.fetchRidesFromDatabase()
+//                fetchRidesListener.fetchRidesFromDatabase()
             } else {
                 Toast.makeText(requireContext(), "Please fill in all fields", Toast.LENGTH_SHORT).show()
             }
