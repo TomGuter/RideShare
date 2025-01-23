@@ -58,6 +58,8 @@ dependencies {
     implementation(libs.firebase.common.ktx)
     implementation(libs.firebase.dataconnect)
     implementation(libs.firebase.storage.ktx)
+    implementation(libs.androidx.adapters)
+    implementation(libs.androidx.recyclerview)
     kapt(libs.androidx.room.compiler)
     implementation(libs.cloudinary.android)
 

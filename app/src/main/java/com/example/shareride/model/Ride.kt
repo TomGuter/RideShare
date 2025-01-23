@@ -18,7 +18,8 @@ data class Ride(
     val userId: String = "",
     val latitude: Double = 0.0,
     val longitude: Double = 0.0,
-    val vacantSeats: Int = 0
+    val vacantSeats: Int = 0,
+    val joinedUsers: List<String> = emptyList()
 ) {
 
     companion object {
@@ -37,6 +38,7 @@ data class Ride(
         private const val LATITUDE_KEY = "latitude"
         private const val LONGITUDE_KEY = "longitude"
         private const val VACANT_SEATS_KEY = "vacantSeats"
+        private const val JOINED_USERS_KEY = "joinedUsers"
 
         fun fromJSON(json: Map<String, Any>): Ride {
             val id = json[ID_KEY] as? String ?: ""
@@ -53,6 +55,7 @@ data class Ride(
             val latitude = (json[LATITUDE_KEY] as? Number)?.toDouble() ?: 0.0
             val longitude = (json[LONGITUDE_KEY] as? Number)?.toDouble() ?: 0.0
             val vacantSeats = (json[VACANT_SEATS_KEY] as? Number)?.toInt() ?: 0
+            val joinedUsers = (json[JOINED_USERS_KEY] as? List<*>)?.mapNotNull { it as? String } ?: emptyList()
 
             return Ride(
                 id = id,
@@ -68,7 +71,8 @@ data class Ride(
                 userId = userId,
                 latitude = latitude,
                 longitude = longitude,
-                vacantSeats = vacantSeats
+                vacantSeats = vacantSeats,
+                joinedUsers = joinedUsers
             )
         }
     }
@@ -89,7 +93,8 @@ data class Ride(
                 USER_ID_KEY to userId,
                 LATITUDE_KEY to latitude,
                 LONGITUDE_KEY to longitude,
-                VACANT_SEATS_KEY to vacantSeats
+                VACANT_SEATS_KEY to vacantSeats,
+                JOINED_USERS_KEY to joinedUsers
             )
         }
 }

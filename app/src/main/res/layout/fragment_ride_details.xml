@@ -1,168 +1,206 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    tools:context="com.example.shareride.ui.RideDetailsFragment">
+    android:layout_height="match_parent">
 
-    <ImageView
-        android:id="@+id/driver_image"
-        android:layout_width="60dp"
-        android:layout_height="60dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
-        android:src="@drawable/avatar"
-        android:contentDescription="Driver's Avatar"
-        android:scaleType="centerCrop"
-        android:background="@drawable/circle_background"
-        android:clipToOutline="true"
-        android:outlineProvider="background"
-        android:elevation="4dp"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
-
-
-    <TextView
-        android:id="@+id/ride_name_textview"
-        android:layout_width="wrap_content"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Ride Name"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        android:textColor="#212121"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toEndOf="@id/driver_image"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
-        android:ellipsize="end"
-        android:maxLines="1" />
+        tools:context="com.example.shareride.ui.RideDetailsFragment">
 
-    <TextView
-        android:id="@+id/driver_name_textview"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Driver Name"
-        android:textSize="14sp"
-        android:textColor="#757575"
-        app:layout_constraintTop_toBottomOf="@id/ride_name_textview"
-        app:layout_constraintStart_toStartOf="@id/ride_name_textview"
-        android:layout_marginTop="4dp"
-        android:ellipsize="end"
-        android:maxLines="1" />
+        <ImageView
+            android:id="@+id/driver_image"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:src="@drawable/avatar"
+            android:contentDescription="Driver's Avatar"
+            android:scaleType="centerCrop"
+            android:background="@drawable/circle_background"
+            android:clipToOutline="true"
+            android:outlineProvider="background"
+            android:elevation="4dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
 
-    <TextView
-        android:id="@+id/departure_location_textview"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="From: Location"
-        android:textSize="14sp"
-        android:textColor="#757575"
-        app:layout_constraintTop_toBottomOf="@id/driver_name_textview"
-        app:layout_constraintStart_toStartOf="@id/ride_name_textview"
-        android:layout_marginTop="12dp"
-        android:ellipsize="end"
-        android:maxLines="1" />
-
-    <TextView
-        android:id="@+id/arrival_location_textview"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="To: Location"
-        android:textSize="14sp"
-        android:textColor="#757575"
-        app:layout_constraintTop_toBottomOf="@id/departure_location_textview"
-        app:layout_constraintStart_toStartOf="@id/departure_location_textview"
-        android:layout_marginTop="4dp"
-        android:ellipsize="end"
-        android:maxLines="1" />
-
-    <TextView
-        android:id="@+id/ride_date_textview"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Date: 2023-11-01"
-        android:textSize="14sp"
-        android:textColor="#757575"
-        app:layout_constraintTop_toBottomOf="@id/arrival_location_textview"
-        app:layout_constraintStart_toStartOf="@id/arrival_location_textview"
-        android:layout_marginTop="4dp"
-        android:ellipsize="end"
-        android:maxLines="1" />
-
-    <TextView
-        android:id="@+id/departure_time_textview"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Departure Time: 08:00 AM"
-        android:textSize="14sp"
-        android:textColor="#757575"
-        app:layout_constraintTop_toBottomOf="@id/ride_date_textview"
-        app:layout_constraintStart_toStartOf="@id/ride_date_textview"
-        android:layout_marginTop="4dp"
-        android:ellipsize="end"
-        android:maxLines="1" />
-
-    <TextView
-        android:id="@+id/rating_textview"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Rating: 4.5"
-        android:textSize="14sp"
-        android:textColor="@android:color/holo_green_dark"
-        app:layout_constraintTop_toBottomOf="@id/departure_time_textview"
-        app:layout_constraintStart_toStartOf="@id/departure_time_textview"
-        android:layout_marginTop="4dp" />
-
-    <TextView
-        android:id="@+id/vacant_seats_textview"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Vacant Seats: 0"
-        android:textSize="14sp"
-        android:textColor="#FF9800"
-        app:layout_constraintTop_toBottomOf="@id/rating_textview"
-        app:layout_constraintStart_toStartOf="@id/rating_textview"
-        android:layout_marginTop="8dp"
-        android:ellipsize="end"
-        android:maxLines="1" />
-
-    <LinearLayout
-        android:id="@+id/rating_stars_layout"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="24dp"
-        android:layout_marginTop="12dp"
-        android:orientation="horizontal"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/vacant_seats_textview">
-
-        <RatingBar
-            android:id="@+id/driver_rating_bar"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:isIndicator="false"
-            android:minHeight="30dip"
-            android:numStars="5"
-            android:rating="4.0"
-            android:stepSize="0.5"
-            tools:layout_editor_absoluteX="26dp"
-            tools:layout_editor_absoluteY="232dp" />
-
-        <Button
-            android:id="@+id/rate_driver_button"
+        <TextView
+            android:id="@+id/ride_name_textview"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:backgroundTint="#7C7C78"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp"
-            android:text="Rate Driver"
+            android:text="Ride Name"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="#212121"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toEndOf="@id/driver_image"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:ellipsize="end"
+            android:maxLines="1" />
+
+        <TextView
+            android:id="@+id/driver_name_textview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Driver Name"
+            android:textSize="14sp"
+            android:textColor="#757575"
+            app:layout_constraintTop_toBottomOf="@id/ride_name_textview"
+            app:layout_constraintStart_toStartOf="@id/ride_name_textview"
+            android:layout_marginTop="4dp"
+            android:ellipsize="end"
+            android:maxLines="1" />
+
+        <TextView
+            android:id="@+id/departure_location_textview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="From: Location"
+            android:textSize="14sp"
+            android:textColor="#757575"
+            app:layout_constraintTop_toBottomOf="@id/driver_name_textview"
+            app:layout_constraintStart_toStartOf="@id/ride_name_textview"
+            android:layout_marginTop="12dp"
+            android:ellipsize="end"
+            android:maxLines="1" />
+
+        <TextView
+            android:id="@+id/arrival_location_textview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="To: Location"
+            android:textSize="14sp"
+            android:textColor="#757575"
+            app:layout_constraintTop_toBottomOf="@id/departure_location_textview"
+            app:layout_constraintStart_toStartOf="@id/departure_location_textview"
+            android:layout_marginTop="4dp"
+            android:ellipsize="end"
+            android:maxLines="1" />
+
+        <TextView
+            android:id="@+id/ride_date_textview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Date: 2023-11-01"
+            android:textSize="14sp"
+            android:textColor="#757575"
+            app:layout_constraintTop_toBottomOf="@id/arrival_location_textview"
+            app:layout_constraintStart_toStartOf="@id/arrival_location_textview"
+            android:layout_marginTop="4dp"
+            android:ellipsize="end"
+            android:maxLines="1" />
+
+        <TextView
+            android:id="@+id/departure_time_textview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Departure Time: 08:00 AM"
+            android:textSize="14sp"
+            android:textColor="#757575"
+            app:layout_constraintTop_toBottomOf="@id/ride_date_textview"
+            app:layout_constraintStart_toStartOf="@id/ride_date_textview"
+            android:layout_marginTop="4dp"
+            android:ellipsize="end"
+            android:maxLines="1" />
+
+        <TextView
+            android:id="@+id/rating_textview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Rating: 4.5"
+            android:textSize="14sp"
+            android:textColor="@android:color/holo_green_dark"
+            app:layout_constraintTop_toBottomOf="@id/departure_time_textview"
+            app:layout_constraintStart_toStartOf="@id/departure_time_textview"
+            android:layout_marginTop="4dp" />
+
+        <TextView
+            android:id="@+id/vacant_seats_textview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Vacant Seats: 0"
+            android:textSize="14sp"
+            android:textColor="#FF9800"
+            app:layout_constraintTop_toBottomOf="@id/rating_textview"
+            app:layout_constraintStart_toStartOf="@id/rating_textview"
+            android:layout_marginTop="8dp"
+            android:ellipsize="end"
+            android:maxLines="1" />
+
+        <LinearLayout
+            android:id="@+id/rating_stars_layout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="24dp"
+            android:layout_marginTop="12dp"
+            android:orientation="horizontal"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/vacant_seats_textview">
+
+            <RatingBar
+                android:id="@+id/driver_rating_bar"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:isIndicator="false"
+                android:minHeight="30dip"
+                android:numStars="5"
+                android:rating="4.0"
+                android:stepSize="0.5" />
+
+            <Button
+                android:id="@+id/rate_driver_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:backgroundTint="#7C7C78"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:text="Rate Driver"
+                android:textColor="#FFFFFF"
+                android:textSize="12sp" />
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/join_ride_button"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="Join Ride"
+            android:backgroundTint="@android:color/holo_blue_dark"
             android:textColor="#FFFFFF"
-            android:textSize="12sp"
-            tools:layout_editor_absoluteX="282dp"
-            tools:layout_editor_absoluteY="245dp" />
-    </LinearLayout>
+            android:textSize="14sp"
+            app:layout_constraintTop_toBottomOf="@id/rating_stars_layout"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="16dp" />
+
+        <Button
+            android:id="@+id/remove_ride_button"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="Leave Ride"
+            android:backgroundTint="@android:color/holo_red_dark"
+            android:textColor="#FFFFFF"
+            android:textSize="14sp"
+            android:visibility="gone"
+            app:layout_constraintTop_toBottomOf="@id/rating_stars_layout"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="16dp" />
+
+        <!-- RecyclerView for displaying joined users -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/joined_users_recyclerview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            app:layout_constraintTop_toBottomOf="@id/join_ride_button"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.core.widget.NestedScrollView>
