@@ -2,6 +2,7 @@ package com.example.shareride.ui
 
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
+import android.content.Context
 import android.location.Geocoder
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -9,6 +10,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import com.example.shareride.MainActivity
 import com.example.shareride.R
 import com.example.shareride.model.Model
 import com.example.shareride.model.Ride
@@ -17,6 +19,17 @@ import com.google.firebase.auth.FirebaseAuth
 import java.util.*
 
 class AddRideFragment : Fragment() {
+
+    private lateinit var fetchRidesListener: OnFetchRidesListener
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        if (context is OnFetchRidesListener) {
+            fetchRidesListener = context
+        } else {
+            throw RuntimeException("$context must implement OnFetchRidesListener")
+        }
+    }
 
     private lateinit var rideNameInput: TextInputEditText
     private lateinit var driverNameInput: TextInputEditText
@@ -52,6 +65,8 @@ class AddRideFragment : Fragment() {
             val ride = createRideFromInput()
             if (ride != null) {
                 getCoordinatesAndAddRide(ride)
+
+                fetchRidesListener.fetchRidesFromDatabase()
             } else {
                 Toast.makeText(requireContext(), "Please fill in all fields", Toast.LENGTH_SHORT).show()
             }
