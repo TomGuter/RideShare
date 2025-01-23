@@ -1,8 +1,13 @@
 package com.example.shareride.model
 
 
+import android.app.Activity
+import android.content.Intent
 import android.graphics.Bitmap
 import android.util.Log
+import android.widget.Toast
+import com.example.shareride.MainActivity
+import com.example.shareride.R
 import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -11,13 +16,15 @@ import com.google.firebase.firestore.ktx.memoryCacheSettings
 import com.google.firebase.storage.FirebaseStorage
 import com.example.shareride.base.Constants
 import com.example.shareride.base.EmptyCallback
+import com.example.shareride.base.MyApplication.Globals.context
 import com.example.shareride.base.RidesCallback
 import java.io.ByteArrayOutputStream
 
 class FirebaseModel {
 
     private val database: FirebaseFirestore = FirebaseFirestore.getInstance()
-    private val storage: FirebaseStorage = FirebaseStorage.getInstance()
+    private val auth = FirebaseAuth.getInstance()
+
 
 
     init {
@@ -26,6 +33,10 @@ class FirebaseModel {
         }
 
         database.firestoreSettings = setting
+    }
+
+    fun getCurrentUserId(): String? {
+        return auth.currentUser?.uid
     }
 
 
@@ -64,27 +75,83 @@ class FirebaseModel {
 
     fun updateRide(ride: Ride, callback: EmptyCallback) {
         database.collection(Constants.COLLECTIONS.RIDES).document(ride.id)
-            .set(ride.json)  // Assumes that the `ride.json` properly represents the updated data
+            .set(ride.json)
             .addOnCompleteListener {
                 callback()
             }
     }
 
 
-    fun uploadImage(image: Bitmap, name: String, callback: (String?) -> Unit) {
-        val storageRef = storage.reference
-        val imageRef = storageRef.child("images/$name.jpg")
-        val baos = ByteArrayOutputStream()
-        image.compress(Bitmap.CompressFormat.JPEG, 100, baos)
-        val data = baos.toByteArray()
+    fun registerUser(firstName: String, lastName: String, email: String, phone: String, password: String, callback: (Boolean, String) -> Unit) {
+        auth.createUserWithEmailAndPassword(email, password)
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    val user = auth.currentUser
+                    val userId = user?.uid ?: ""
 
-        val uploadTask = imageRef.putBytes(data)
-        uploadTask.addOnSuccessListener {
-            imageRef.downloadUrl.addOnSuccessListener { uri ->
-                callback(uri.toString())
+                    val defaultAvatarUrl = "android.resource://com.example.shareride/${R.drawable.avatar}"
+
+                    val newUser = User(
+                        id = userId,
+                        firstName = firstName,
+                        lastName = lastName,
+                        email = email,
+                        phone = phone,
+                        pictureUrl = defaultAvatarUrl
+                    )
+
+                    user?.let {
+                        database.collection("users").document(it.uid)
+                            .set(newUser.json)
+                            .addOnSuccessListener {
+                                callback(true, "User registered successfully!")
+                            }
+                            .addOnFailureListener { e ->
+                                callback(false, "Error saving user data: ${e.message}")
+                            }
+                    }
+                } else {
+                    callback(false, "Registration failed: ${task.exception?.message ?: "Unknown error"}")
+                }
             }
-        }.addOnFailureListener {
-            callback(null)
-        }
+    }
+
+
+
+    fun updateUser(firstName: String, lastName: String, email: String, phone: String, pictureUrl: String, callback: (Boolean, String) -> Unit) {
+
+        val userId = getCurrentUserId() ?: return callback(false, "User not logged in")
+
+        val user = User(
+            id = getCurrentUserId() ?: "",
+            firstName = firstName,
+            lastName = lastName,
+            email = email,
+            phone = phone,
+            pictureUrl = pictureUrl
+        )
+
+        database.collection("users").document(user.id)
+            .set(user.json)
+            .addOnSuccessListener {
+                callback(true, "User data updated successfully!")
+            }
+            .addOnFailureListener { e ->
+                callback(false, "Error updating user data: ${e.message}")
+            }
+    }
+
+
+    fun getUser(userId: String, callback: (User) -> Unit) {
+        database.collection("users").document(userId).get()
+            .addOnSuccessListener { document ->
+                val user = document.data?.let { User.fromJSON(it) }
+                if (user != null) {
+                    callback(user)
+                }
+            }
+            .addOnFailureListener { exception ->
+                Log.w("FirebaseModel", "Error getting user data", exception)
+            }
     }
 }

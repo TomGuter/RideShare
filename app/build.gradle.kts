@@ -58,7 +58,11 @@ dependencies {
     implementation(libs.firebase.common.ktx)
     implementation(libs.firebase.dataconnect)
     implementation(libs.firebase.storage.ktx)
+    implementation(libs.androidx.adapters)
+    implementation(libs.androidx.recyclerview)
     kapt(libs.androidx.room.compiler)
+    implementation(libs.cloudinary.android)
+
     implementation(libs.androidx.room.ktx)
 
     implementation(libs.androidx.navigation.fragment.ktx)
@@ -76,7 +80,8 @@ dependencies {
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
 
-//    implementation ("com.cloudinary:cloudinary-android:1.31.0")
+    implementation (libs.picasso)
+
 
 
 

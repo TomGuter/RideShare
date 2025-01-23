@@ -4,57 +4,70 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:padding="16dp"
     tools:context=".ui.RideFragment">
 
-    <!-- Welcome Message -->
+
+    <ProgressBar
+        android:id="@+id/progress_bar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <TextView
         android:id="@+id/welcome_message"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Welcome to Ride Sharing!"
-        android:textSize="20sp"
+        android:gravity="center"
+        android:text="Find Your Ride"
+        android:textColor="#6070BC"
+        android:textSize="24sp"
         android:textStyle="bold"
-        android:layout_marginTop="24dp"
-        android:layout_marginBottom="16dp"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginTop="0dp" />
 
-    <!-- Search Box for Location -->
     <EditText
         android:id="@+id/search_location"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="40dp"
         android:hint="Search by Location"
+        android:background="@drawable/rounded_edittext"
         android:paddingStart="16dp"
         android:paddingEnd="16dp"
-        android:layout_marginTop="16dp"
+        android:textColor="#212121"
+        android:textColorHint="#9E9E9E"
+        android:layout_marginTop="12dp"
         app:layout_constraintTop_toBottomOf="@id/welcome_message"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- Spinner for Rating Filter -->
     <EditText
         android:id="@+id/rating_filter"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:hint="Enter Rating"
-        android:inputType="numberDecimal"
+        android:layout_height="40dp"
+        android:hint="Enter Minimum Rating"
+        android:background="@drawable/rounded_edittext"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:textColor="#212121"
+        android:textColorHint="#9E9E9E"
+        android:layout_marginTop="8dp"
         app:layout_constraintTop_toBottomOf="@id/search_location"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- RecyclerView for displaying rides -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/ride_list"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="16dp"
         app:layout_constraintTop_toBottomOf="@id/rating_filter"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent" />
-
 </androidx.constraintlayout.widget.ConstraintLayout>
-
