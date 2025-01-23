@@ -15,6 +15,9 @@ class Model private constructor() {
         val shared = Model()
     }
 
+    fun getCurrentUserId(): String? {
+        return firebaseModel.getCurrentUserId()
+    }
 
     fun getAllRides(callback: RidesCallback) {
         firebaseModel.getAllRides(callback)
@@ -34,12 +37,12 @@ class Model private constructor() {
     }
 
 
-    fun registerUser(firstName: String, lastName: String, email: String, password: String, imageBitmap: Bitmap?, callback: (Boolean, String) -> Unit) {
-        firebaseModel.registerUser(firstName, lastName, email, password) { success, message ->
+    fun registerUser(firstName: String, lastName: String, email: String, phone: String, password: String, imageBitmap: Bitmap?, callback: (Boolean, String) -> Unit) {
+        firebaseModel.registerUser(firstName, lastName, email, phone, password) { success, message ->
             if (success) {
                 imageBitmap?.let {
                     uploadImageToCloudinary(it, email, { url ->
-                        updateUser(firstName, lastName, email, url) { updateSuccess, updateMessage ->
+                        updateUser(firstName, lastName, email, phone, url) { updateSuccess, updateMessage ->
                             callback(updateSuccess, updateMessage)
                         }
                     }, { error ->
@@ -47,7 +50,7 @@ class Model private constructor() {
                     })
                 } ?: run {
                     val defaultAvatarUrl = "android.resource://com.example.shareride/${R.drawable.avatar}"
-                    firebaseModel.updateUser(firstName, lastName, email, defaultAvatarUrl) { updateSuccess, updateMessage ->
+                    firebaseModel.updateUser(firstName, lastName, email, phone, defaultAvatarUrl) { updateSuccess, updateMessage ->
                         callback(updateSuccess, updateMessage)
                     }
                 }
@@ -58,8 +61,8 @@ class Model private constructor() {
     }
 
 
-    private fun updateUser(firstName: String, lastName: String, email: String, pictureUrl: String, callback: (Boolean, String) -> Unit) {
-        firebaseModel.updateUser(firstName, lastName, email, pictureUrl, callback)
+    private fun updateUser(firstName: String, lastName: String, email: String, phone: String, pictureUrl: String, callback: (Boolean, String) -> Unit) {
+        firebaseModel.updateUser(firstName, lastName, email, phone, pictureUrl, callback)
     }
 
 
@@ -70,6 +73,10 @@ class Model private constructor() {
             onSuccess = onSuccess,
             onError = onError
         )
+    }
+
+    fun getUser(userId: String, callback: (User) -> Unit) {
+        firebaseModel.getUser(userId, callback)
     }
 
 

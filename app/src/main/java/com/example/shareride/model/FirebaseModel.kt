@@ -82,7 +82,7 @@ class FirebaseModel {
     }
 
 
-    fun registerUser(firstName: String, lastName: String, email: String, password: String, callback: (Boolean, String) -> Unit) {
+    fun registerUser(firstName: String, lastName: String, email: String, phone: String, password: String, callback: (Boolean, String) -> Unit) {
         auth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
@@ -96,6 +96,7 @@ class FirebaseModel {
                         firstName = firstName,
                         lastName = lastName,
                         email = email,
+                        phone = phone,
                         pictureUrl = defaultAvatarUrl
                     )
 
@@ -117,7 +118,7 @@ class FirebaseModel {
 
 
 
-    fun updateUser(firstName: String, lastName: String, email: String, pictureUrl: String, callback: (Boolean, String) -> Unit) {
+    fun updateUser(firstName: String, lastName: String, email: String, phone: String, pictureUrl: String, callback: (Boolean, String) -> Unit) {
 
         val userId = getCurrentUserId() ?: return callback(false, "User not logged in")
 
@@ -126,6 +127,7 @@ class FirebaseModel {
             firstName = firstName,
             lastName = lastName,
             email = email,
+            phone = phone,
             pictureUrl = pictureUrl
         )
 
@@ -136,6 +138,20 @@ class FirebaseModel {
             }
             .addOnFailureListener { e ->
                 callback(false, "Error updating user data: ${e.message}")
+            }
+    }
+
+
+    fun getUser(userId: String, callback: (User) -> Unit) {
+        database.collection("users").document(userId).get()
+            .addOnSuccessListener { document ->
+                val user = document.data?.let { User.fromJSON(it) }
+                if (user != null) {
+                    callback(user)
+                }
+            }
+            .addOnFailureListener { exception ->
+                Log.w("FirebaseModel", "Error getting user data", exception)
             }
     }
 }

@@ -26,6 +26,7 @@ class RegisterActivity : AppCompatActivity() {
     private lateinit var firstNameEditText: EditText
     private lateinit var lastNameEditText: EditText
     private lateinit var emailEditText: EditText
+    private lateinit var phoneEditText: EditText
     private lateinit var passwordEditText: EditText
     private lateinit var registerButton: Button
     private lateinit var loginTextView: TextView
@@ -52,6 +53,7 @@ class RegisterActivity : AppCompatActivity() {
         firstNameEditText = findViewById(R.id.first_name_edit_text)
         lastNameEditText = findViewById(R.id.last_name_edit_text)
         emailEditText = findViewById(R.id.email_edit_text)
+        phoneEditText = findViewById(R.id.phone_number_edit_text)
         passwordEditText = findViewById(R.id.password_edit_text)
         registerButton = findViewById(R.id.register_button)
         loginTextView = findViewById(R.id.login_text_view)
@@ -83,10 +85,11 @@ class RegisterActivity : AppCompatActivity() {
             val firstName = firstNameEditText.text.toString()
             val lastName = lastNameEditText.text.toString()
             val email = emailEditText.text.toString()
+            val phone = phoneEditText.text.toString()
             val password = passwordEditText.text.toString()
 
-            if (firstName.isNotEmpty() && lastName.isNotEmpty() && email.isNotEmpty() && password.isNotEmpty()) {
-                Model.shared.registerUser(firstName, lastName, email, password, imageBitmap) { success, message ->
+            if (firstName.isNotEmpty() && lastName.isNotEmpty() && email.isNotEmpty() && phone.isNotEmpty() && password.isNotEmpty()) {
+                Model.shared.registerUser(firstName, lastName, email, phone, password, imageBitmap) { success, message ->
                     if (success) {
                         Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
                         val intent = Intent(this, MainActivity::class.java)

@@ -6,6 +6,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ProgressBar
+import android.widget.TextView
 import android.widget.Toast
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
@@ -28,12 +30,37 @@ class RideFragment : Fragment() {
 
     private lateinit var searchLocationEditText: EditText
     private lateinit var ratingFilterEditText: EditText
+    private lateinit var progressBar: ProgressBar
+    private lateinit var welcomeMessageTextView: TextView
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         val binding = FragmentRideBinding.inflate(inflater, container, false)
+
+
+        progressBar = binding.root.findViewById(R.id.progress_bar)
+        welcomeMessageTextView = binding.root.findViewById(R.id.welcome_message)
+
+        progressBar.visibility = View.VISIBLE
+        welcomeMessageTextView.visibility = View.GONE
+
+        val currUserId = Model.shared.getCurrentUserId()
+        currUserId?.let { userId ->
+            Model.shared.getUser(userId) { user ->
+                val userName = user.firstName
+                welcomeMessageTextView.text = "Hi $userName! Find Your Ride"
+                progressBar.visibility = View.GONE
+                welcomeMessageTextView.visibility = View.VISIBLE
+            }
+        } ?: run {
+            Toast.makeText(context, "User ID is null", Toast.LENGTH_SHORT).show()
+            progressBar.visibility = View.GONE
+        }
+
+
 
         rideRecyclerView = binding.rideList
         searchLocationEditText = binding.searchLocation
@@ -119,7 +146,7 @@ class RideFragment : Fragment() {
         val action = RideFragmentDirections
             .actionRideFragmentToRideDetailsFragment(
                 ride.name, ride.driverName, ride.routeFrom, ride.routeTo, ride.date, ride.departureTime, ride.rating, ride.ratingCount,
-                ride.ratingSum, ride.vacantSeats, ride.userId, ride.id,
+                ride.ratingSum, ride.vacantSeats, ride.userId, ride.id
             )
 
         findNavController().navigate(action)
