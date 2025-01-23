@@ -4,35 +4,43 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
+import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import com.example.shareride.ui.LoginActivity
-import com.example.shareride.data.Ride
+import com.example.shareride.model.Ride
+import com.example.shareride.model.Model
+import com.example.shareride.ui.OnFetchRidesListener
 import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import org.osmdroid.config.Configuration
+import org.osmdroid.events.MapListener
+import org.osmdroid.events.ScrollEvent
+import org.osmdroid.events.ZoomEvent
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Marker
 
 
-class MainActivity : AppCompatActivity() {
+
+class MainActivity : AppCompatActivity(), OnFetchRidesListener {
 
     private lateinit var navController: NavController
     private lateinit var map: MapView
+    private lateinit var progressBar: ProgressBar
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        // אתחול Firebase
         FirebaseApp.initializeApp(this)
 
-        // Toolbar
         val toolbar: Toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
 
@@ -46,9 +54,14 @@ class MainActivity : AppCompatActivity() {
             openLoginActivity()
         }
 
+        progressBar = findViewById(R.id.progressBar)
+        map = findViewById(R.id.map)
+
         Configuration.getInstance().load(applicationContext, android.preference.PreferenceManager.getDefaultSharedPreferences(applicationContext))
         map = findViewById(R.id.map)
         map.setMultiTouchControls(true)
+
+        progressBar.visibility = View.VISIBLE
 
 
         val startPoint = GeoPoint(32.0853, 34.7818)
@@ -63,12 +76,24 @@ class MainActivity : AppCompatActivity() {
         map.overlays.add(marker)
 
 
+        map.addMapListener(object : MapListener {
+            override fun onScroll(event: ScrollEvent?): Boolean {
+                progressBar.visibility = View.GONE
+                return false
+            }
+
+            override fun onZoom(event: ZoomEvent?): Boolean {
+                progressBar.visibility = View.GONE
+                return false
+            }
+        })
+
         fetchRidesFromDatabase()
     }
 
     override fun onResume() {
         super.onResume()
-        map.onResume() // osmdroid
+        map.onResume()
     }
 
     override fun onPause() {
@@ -138,41 +163,44 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun fetchRidesFromDatabase() {
+    override fun fetchRidesFromDatabase() {
         val rides = mutableListOf<Ride>()
-        val db = FirebaseFirestore.getInstance() // חיבור ל-Firebase Firestore
+        Model.shared.getAllRides { ridesList ->
+            ridesList.forEach { ride ->
+                rides.add(ride)
+            }
+        }
 
+        val db = FirebaseFirestore.getInstance()
         db.collection("rides")
             .get()
             .addOnSuccessListener { result ->
                 for (document in result) {
-                    val routeFrom = document.getString("routeFrom") ?: ""
-                    val routeTo = document.getString("routeTo") ?: ""
-                    val latitude = document.getDouble("latitude") ?: 0.0
-                    val longitude = document.getDouble("longitude") ?: 0.0
-
-                    rides.add(
-                        Ride(
-                            name = "",
-                            driverName = "",
-                            routeFrom = routeFrom,
-                            routeTo = routeTo,
-                            date = "",
-                            departureTime = "",
-                            rating = 0f,
-                            userId = "",
-                            latitude = latitude,
-                            longitude = longitude
+                    with(document) {
+                        rides.add(
+                            Ride(
+                                id = getString("id") ?: "",
+                                name = getString("name") ?: "",
+                                driverName = getString("driverName") ?: "",
+                                routeFrom = getString("routeFrom") ?: "",
+                                routeTo = getString("routeTo") ?: "",
+                                date = getString("date") ?: "",
+                                departureTime = getString("departureTime") ?: "",
+                                ratingSum = getDouble("ratingSum")?.toFloat() ?: 0f,
+                                ratingCount = getLong("ratingCount")?.toInt() ?: 0,
+                                userId = getString("userId") ?: "",
+                                latitude = getDouble("latitude") ?: 0.0,
+                                longitude = getDouble("longitude") ?: 0.0,
+                                vacantSeats = getLong("vacantSeats")?.toInt() ?: 0,
+                                joinedUsers = (get("joinedUsers") as? List<*>)?.mapNotNull { it as? String } ?: emptyList()
+                            )
                         )
-                    )
-
+                    }
                 }
-
-
                 updateMapWithRides(rides)
             }
             .addOnFailureListener { e ->
-                Toast.makeText(this, "error: ${e.message}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
             }
     }
 
@@ -192,3 +220,5 @@ class MainActivity : AppCompatActivity() {
         }
     }
 }
+
+
