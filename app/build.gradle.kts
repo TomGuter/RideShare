@@ -60,6 +60,7 @@ dependencies {
     implementation(libs.firebase.storage.ktx)
     implementation(libs.androidx.adapters)
     implementation(libs.androidx.recyclerview)
+    implementation(libs.play.services.location)
     kapt(libs.androidx.room.compiler)
     implementation(libs.cloudinary.android)
 
@@ -73,13 +74,13 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 
-    ///
-    implementation("org.osmdroid:osmdroid-android:6.1.16")
-    implementation("org.osmdroid:osmdroid-wms:6.1.16")
+    implementation (libs.play.services.location)
 
-    implementation("com.squareup.retrofit2:retrofit:2.9.0")
-    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+    implementation(libs.osmdroid.android)
+    implementation(libs.osmdroid.wms)
 
+    implementation(libs.retrofit)
+    implementation(libs.converter.gson)
 
 
     implementation (libs.picasso)
