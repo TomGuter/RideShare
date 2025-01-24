@@ -5,7 +5,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     app:startDestination="@id/rideFragment">
 
-    <!-- Ride Fragment -->
     <fragment
         android:id="@+id/rideFragment"
         android:name="com.example.shareride.ui.RideFragment"
@@ -19,9 +18,11 @@
         <action
             android:id="@+id/action_rideFragment_to_myRidesFragment"
             app:destination="@id/myRidesFragment" />
+        <action
+            android:id="@+id/action_rideFragment_to_personalAreaFragment"
+            app:destination="@id/personalAreaFragment" />
     </fragment>
 
-    <!-- Ride Details Fragment -->
     <fragment
         android:id="@+id/rideDetailsFragment"
         android:name="com.example.shareride.ui.RideDetailsFragment"
@@ -66,14 +67,12 @@
 
     </fragment>
 
-    <!-- Add Ride Fragment -->
     <fragment
         android:id="@+id/addRideFragment"
         android:name="com.example.shareride.ui.AddRideFragment"
         android:label="Add Ride"
         tools:layout="@layout/fragment_add_ride" />
 
-    <!-- My Rides Fragment -->
     <fragment
         android:id="@+id/myRidesFragment"
         android:name="com.example.shareride.ui.MyRidesFragment"
@@ -82,18 +81,23 @@
         <action
             android:id="@+id/action_myRidesFragment_to_addRideFragment"
             app:destination="@id/addRideFragment" />
-        <!-- Action to navigate to the Update Ride Fragment -->
+
         <action
             android:id="@+id/action_myRidesFragment_to_updateRideFragment"
             app:destination="@id/updateRideFragment" />
     </fragment>
 
-    <!-- Update Ride Fragment -->
     <fragment
         android:id="@+id/updateRideFragment"
         android:name="com.example.shareride.ui.UpdateRideFragment"
         android:label="Update Ride"
         tools:layout="@layout/fragment_update_ride" />
+
+    <fragment
+        android:id="@+id/personalAreaFragment"
+        android:name="com.example.shareride.ui.PersonalArea"
+        android:label="Personal Area"
+        tools:layout="@layout/fragment_personal_area" />
 
 </navigation>
 

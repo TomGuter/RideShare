@@ -35,7 +35,51 @@
         android:textSize="14sp"
         android:textColor="@android:color/darker_gray" />
 
-    <!-- Buttons for Delete and Update -->
+    <TextView
+        android:id="@+id/ride_from"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Ride from: Location"
+        android:textSize="14sp"
+        android:textColor="@android:color/darker_gray" />
+
+    <!-- Ride To -->
+    <TextView
+        android:id="@+id/ride_to"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Ride to: Location"
+        android:textSize="14sp"
+        android:textColor="@android:color/darker_gray" />
+
+    <!-- Departure -->
+    <TextView
+        android:id="@+id/departure"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Departure: Time"
+        android:textSize="14sp"
+        android:textColor="@android:color/darker_gray" />
+
+    <!-- Date -->
+    <TextView
+        android:id="@+id/ride_date"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Date: YYYY-MM-DD"
+        android:textSize="14sp"
+        android:textColor="@android:color/darker_gray" />
+
+    <!-- Phone Number -->
+    <TextView
+        android:id="@+id/phone_number"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Phone: +1 (123) 456-7890"
+        android:textSize="14sp"
+        android:textColor="@android:color/darker_gray" />
+
+    <!-- Buttons for View, Delete, and Update -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -48,19 +92,28 @@
             android:id="@+id/btn_delete"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:backgroundTint="@android:color/holo_red_dark"
             android:text="Delete"
-            android:textColor="@android:color/white"
-            android:background="@android:color/holo_red_dark"
-            android:layout_marginEnd="8dp" />
+            android:textColor="@android:color/white" />
 
         <!-- Edit Button -->
         <Button
             android:id="@+id/btn_update"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:backgroundTint="@android:color/holo_green_dark"
             android:text="Update"
-            android:textColor="@android:color/white"
-            android:background="@android:color/holo_blue_dark" />
+            android:textColor="@android:color/white" />
     </LinearLayout>
 
+    <!-- Bottom Border -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@android:color/darker_gray"
+        android:layout_marginTop="8dp" />
+
 </LinearLayout>
+
+

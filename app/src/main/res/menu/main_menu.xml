@@ -2,7 +2,6 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <!-- Rides option in the toolbar -->
     <item
         android:id="@+id/action_rides"
         android:title="Rides"
@@ -10,7 +9,6 @@
         android:orderInCategory="100"
         app:showAsAction="always" />
 
-    <!-- User option in the toolbar -->
     <item
         android:id="@+id/action_user"
         android:title="User"
@@ -18,7 +16,6 @@
         android:orderInCategory="101"
         app:showAsAction="always" />
 
-    <!-- Add Ride option in the toolbar -->
     <item
         android:id="@+id/action_add_ride"
         android:title="Add Ride"
@@ -26,7 +23,6 @@
         android:orderInCategory="102"
         app:showAsAction="always" />
 
-    <!-- My Rides option in the toolbar -->
     <item
         android:id="@+id/action_my_rides"
         android:title="My Rides"
@@ -34,7 +30,6 @@
         android:orderInCategory="103"
         app:showAsAction="always" />
 
-    <!-- Logout option in the toolbar -->
     <item
         android:id="@+id/action_logout"
         android:title="Logout"

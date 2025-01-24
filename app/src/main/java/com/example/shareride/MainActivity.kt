@@ -1,19 +1,34 @@
 package com.example.shareride
 
+import android.Manifest
+import android.annotation.SuppressLint
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.location.Location
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.ProgressBar
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.core.app.ActivityCompat
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import com.example.shareride.ui.LoginActivity
 import com.example.shareride.model.Ride
 import com.example.shareride.model.Model
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.Granularity
+import com.google.android.gms.location.LocationCallback
+import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.location.LocationResult
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.Priority
 import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -32,53 +47,21 @@ class MainActivity : AppCompatActivity() {
     private lateinit var map: MapView
     private lateinit var progressBar: ProgressBar
     private var currentInfoWindow: InfoWindow? = null
+    private val handler = Handler(Looper.getMainLooper())
+    private val loadingDelay = 1000L
+
+    private lateinit var fusedLocationClient: FusedLocationProviderClient
+    private lateinit var locationCallback: LocationCallback
+
+    private lateinit var location: Location
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-
-        FirebaseApp.initializeApp(this)
-
-        val toolbar: Toolbar = findViewById(R.id.toolbar)
-        setSupportActionBar(toolbar)
-
-        val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
-        navController = navHostFragment.navController
-
-        if (isUserLoggedIn()) {
-            navController.navigate(R.id.rideFragment)
-        } else {
-            openLoginActivity()
-        }
-
-        progressBar = findViewById(R.id.progressBar)
-        map = findViewById(R.id.map)
-
-        Configuration.getInstance().load(
-            applicationContext,
-            android.preference.PreferenceManager.getDefaultSharedPreferences(applicationContext)
-        )
-        map.setMultiTouchControls(true)
-
-
-        val startPoint = GeoPoint(32.0853, 34.7818)
-        map.controller.setZoom(12.0)
-        map.controller.setCenter(startPoint)
-
-        addDefaultMarker(startPoint)
-
-        map.addMapListener(object : MapListener {
-            override fun onScroll(event: ScrollEvent?): Boolean {
-                progressBar.visibility = View.GONE
-                return false
-            }
-
-            override fun onZoom(event: ZoomEvent?): Boolean {
-                progressBar.visibility = View.GONE
-                return false
-            }
-        })
-
+        initializeLayout()
+        initializeFirebase()
+        setupNavigation()
+        setupMap()
+        setupLocationServices()
         fetchRidesFromDatabase()
     }
 
@@ -92,13 +75,86 @@ class MainActivity : AppCompatActivity() {
         map.onPause()
     }
 
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.main_menu, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.action_logout -> {
+                logoutUser()
+                true
+            }
+            R.id.action_rides -> {
+                navController.navigate(R.id.rideFragment)
+                true
+            }
+            R.id.action_add_ride -> {
+                navController.navigate(R.id.addRideFragment)
+                true
+            }
+            R.id.action_my_rides -> {
+                navController.navigate(R.id.myRidesFragment)
+                true
+            }
+            R.id.action_user -> {
+                navController.navigate(R.id.personalAreaFragment)
+                true
+            }
+
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
+
+    private fun initializeLayout() {
+        setContentView(R.layout.activity_main)
+        progressBar = findViewById(R.id.progressBar)
+        map = findViewById(R.id.map)
+        val toolbar: Toolbar = findViewById(R.id.toolbar)
+        setSupportActionBar(toolbar)
+    }
+
+    private fun initializeFirebase() {
+        FirebaseApp.initializeApp(this)
+    }
+
+    private fun setupNavigation() {
+        val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
+        navController = navHostFragment.navController
+
+        if (isUserLoggedIn()) {
+            navController.navigate(R.id.rideFragment)
+        } else {
+            openLoginActivity()
+        }
+    }
+
+    private fun setupMap() {
+        Configuration.getInstance().load(applicationContext, android.preference.PreferenceManager.getDefaultSharedPreferences(applicationContext))
+        map.setMultiTouchControls(true)
+        val startPoint = GeoPoint(32.05588366083988, 34.85768581875001)
+        map.controller.setZoom(12.0)
+        map.controller.setCenter(startPoint)
+        map.addMapListener(object : MapListener {
+            override fun onScroll(event: ScrollEvent?): Boolean {
+                showLoadingIndicator()
+                return true
+            }
+
+            override fun onZoom(event: ZoomEvent?): Boolean {
+                showLoadingIndicator()
+                return true
+            }
+        })
+    }
+
     private fun isUserLoggedIn(): Boolean {
         return FirebaseAuth.getInstance().currentUser != null
     }
 
     private fun openLoginActivity() {
-        val intent = Intent(this, LoginActivity::class.java)
-        startActivity(intent)
+        startActivity(Intent(this, LoginActivity::class.java))
         finish()
     }
 
@@ -108,132 +164,188 @@ class MainActivity : AppCompatActivity() {
         openLoginActivity()
     }
 
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menuInflater.inflate(R.menu.main_menu, menu)
-        return true
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            R.id.action_logout -> {
-                logoutUser()
-                return true
-            }
-            R.id.action_rides -> {
-                navController.navigate(R.id.rideFragment)
-                return true
-            }
-            R.id.action_add_ride -> {
-                navController.navigate(R.id.addRideFragment)
-                return true
-            }
-            R.id.action_my_rides -> {
-                navController.navigate(R.id.myRidesFragment)
-                return true
-            }
-            else -> return super.onOptionsItemSelected(item)
-        }
-    }
-
     private fun addDefaultMarker(startPoint: GeoPoint) {
-        val marker = Marker(map)
-        marker.position = startPoint
-        marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
-        marker.title = "Tel Aviv"
+        val marker = Marker(map).apply {
+            position = startPoint
+            setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
+            title = "I'm here!"
+            icon = resources.getDrawable(R.drawable.red_marker_icon, null)
+        }
         map.overlays.add(marker)
     }
 
+    private fun fetchRidesFromDatabase() {
+        val rides = mutableListOf<Ride>()
+        Model.shared.getAllRides { ridesList -> rides.addAll(ridesList) }
+
+        FirebaseFirestore.getInstance().collection("rides").get()
+            .addOnSuccessListener { result ->
+                for (document in result) {
+                    rides.add(
+                        Ride(
+                            id = document.getString("id") ?: "",
+                            name = document.getString("name") ?: "",
+                            driverName = document.getString("driverName") ?: "",
+                            routeFrom = document.getString("routeFrom") ?: "",
+                            routeTo = document.getString("routeTo") ?: "",
+                            date = document.getString("date") ?: "",
+                            departureTime = document.getString("departureTime") ?: "",
+                            ratingSum = document.getDouble("ratingSum")?.toFloat() ?: 0f,
+                            ratingCount = document.getLong("ratingCount")?.toInt() ?: 0,
+                            userId = document.getString("userId") ?: "",
+                            latitude = document.getDouble("latitude") ?: 0.0,
+                            longitude = document.getDouble("longitude") ?: 0.0,
+                            vacantSeats = document.getLong("vacantSeats")?.toInt() ?: 0,
+                            joinedUsers = (document.get("joinedUsers") as? List<*>)?.mapNotNull { it as? String } ?: emptyList()
+                        )
+                    )
+                }
+                updateMapWithRides(rides)
+            }
+            .addOnFailureListener { e ->
+                Toast.makeText(this, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+    }
+
     private fun updateMapWithRides(rides: List<Ride>) {
+        val startPoint = GeoPoint(32.05588366083988, 34.85768581875001)
+
         map.overlays.clear()
+        addDefaultMarker(startPoint)
         if (rides.isEmpty()) {
             Toast.makeText(this, "No rides found", Toast.LENGTH_SHORT).show()
             return
         }
 
-        for (ride in rides) {
-            val marker = Marker(map)
-            val geoPoint = GeoPoint(ride.latitude, ride.longitude)
-            marker.position = geoPoint
-            marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
-            marker.title = "Ride from ${ride.routeFrom} to ${ride.routeTo}"
-            marker.infoWindow = CustomInfoWindow(map, this)
-            marker.relatedObject = ride
-
+        rides.forEach { ride ->
+            val marker = Marker(map).apply {
+                position = GeoPoint(ride.latitude, ride.longitude)
+                setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
+                infoWindow = CustomInfoWindow(map, this@MainActivity)
+                relatedObject = ride
+            }
             marker.setOnMarkerClickListener { m, _ ->
-                if (m.isInfoWindowOpen) {
-                    m.closeInfoWindow()
-                    currentInfoWindow = null
-                } else {
-                    currentInfoWindow?.close()
-                    m.showInfoWindow()
-                    currentInfoWindow = m.infoWindow
-                }
+                handleMarkerClick(m)
                 true
             }
-
             map.overlays.add(marker)
         }
-
         map.controller.setCenter(GeoPoint(rides[0].latitude, rides[0].longitude))
         map.controller.setZoom(12.0)
     }
 
-    private fun fetchRidesFromDatabase() {
-        val db = FirebaseFirestore.getInstance()
-        val rides = mutableListOf<Ride>()
+    private fun handleMarkerClick(marker: Marker) {
+        if (marker.isInfoWindowOpen) {
+            marker.closeInfoWindow()
+            currentInfoWindow = null
+        } else {
+            currentInfoWindow?.close()
+            marker.showInfoWindow()
+            currentInfoWindow = marker.infoWindow
+        }
+    }
 
-        Model.shared.getAllRides { ridesList ->
-            rides.addAll(ridesList)
+    private fun showLoadingIndicator() {
+        progressBar.visibility = View.VISIBLE
+        handler.removeCallbacksAndMessages(null)
+        handler.postDelayed({ progressBar.visibility = View.GONE }, loadingDelay)
+    }
 
-            db.collection("rides")
-                .addSnapshotListener { snapshots, error ->
-                    if (error != null) {
-                        Toast.makeText(this, "Error: ${error.message}", Toast.LENGTH_SHORT).show()
-                        progressBar.visibility = View.GONE
-                        return@addSnapshotListener
+
+
+    private fun setupLocationServices() {
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+        locationCallback = locationCallback()
+
+        if (checkGPSPermission(locationCallback)) return
+
+        getLastKnownGPSLocation()
+        requestLocationUpdate(locationCallback)
+    }
+
+
+    private fun checkGPSPermission(locationCallback: LocationCallback): Boolean {
+
+        if (ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+
+            val locationPermissionRequest = registerForActivityResult(
+                ActivityResultContracts.RequestMultiplePermissions()
+            ) { permissions ->
+                when {
+                    permissions.getOrDefault(Manifest.permission.ACCESS_FINE_LOCATION, false) -> {
+                        getLastKnownGPSLocation()
+                        requestLocationUpdate(locationCallback)
                     }
 
-                    if (snapshots != null) {
-                        rides.clear() // Clear the list to avoid duplicating entries
-                        for (document in snapshots.documents) {
-                            rides.add(
-                                Ride(
-                                    id = document.getString("id") ?: "",
-                                    name = document.getString("name") ?: "",
-                                    driverName = document.getString("driverName") ?: "",
-                                    routeFrom = document.getString("routeFrom") ?: "",
-                                    routeTo = document.getString("routeTo") ?: "",
-                                    date = document.getString("date") ?: "",
-                                    departureTime = document.getString("departureTime") ?: "",
-                                    ratingSum = document.getDouble("ratingSum")?.toFloat() ?: 0f,
-                                    ratingCount = document.getLong("ratingCount")?.toInt() ?: 0,
-                                    userId = document.getString("userId") ?: "",
-                                    latitude = document.getDouble("latitude") ?: 0.0,
-                                    longitude = document.getDouble("longitude") ?: 0.0,
-                                    vacantSeats = document.getLong("vacantSeats")?.toInt() ?: 0,
-                                    joinedUsers = (document.get("joinedUsers") as? List<*>)?.mapNotNull { it as? String } ?: emptyList()
-                                )
-                            )
-                        }
+                    permissions.getOrDefault(Manifest.permission.ACCESS_COARSE_LOCATION, false) -> {
+                        getLastKnownGPSLocation()
+                        requestLocationUpdate(locationCallback)
+                    }
 
-                        updateMapWithRides(rides)
+                    else -> {
+                        // No location access granted.
                     }
                 }
+            }
+
+            locationPermissionRequest.launch(
+                arrayOf(
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                )
+            )
+
+            return true
+        }
+        return false
+    }
+
+    private fun locationCallback() = object : LocationCallback() {
+        override fun onLocationResult(p0: LocationResult) {
+            for (location in p0.locations) {
+
+                this@MainActivity.location = location
+            }
         }
     }
 
-    private fun updateMapWithResults(results: List<GeoPoint>) {
-        map.overlays.clear()
-        for (location in results) {
-            val marker = Marker(map)
-            marker.position = location
-            marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
-            marker.title = "Location"
-            map.overlays.add(marker)
-        }
-        if (results.isNotEmpty()) {
-            map.controller.setCenter(results[0])
-            map.controller.setZoom(14.0)
-        }
+    @SuppressLint("MissingPermission")
+    private fun getLastKnownGPSLocation() {
+
+        fusedLocationClient.lastLocation
+            .addOnSuccessListener { location: Location? ->
+
+                if (location != null) {
+                    this.location = location
+
+                }
+            }
     }
+
+
+    @SuppressLint("MissingPermission")
+    private fun requestLocationUpdate(locationCallback: LocationCallback) {
+
+        fusedLocationClient.requestLocationUpdates(
+            LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 5000L).apply {
+                setGranularity(Granularity.GRANULARITY_PERMISSION_LEVEL)
+            }.build(),
+            locationCallback,
+            Looper.getMainLooper()
+        )
+    }
+
+
 }
+
+
+
+
+

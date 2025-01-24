@@ -55,6 +55,21 @@ class FirebaseModel {
             }
     }
 
+    fun getRidesByUserId(userId: String, callback: RidesCallback) {
+        database.collection(Constants.COLLECTIONS.RIDES).whereEqualTo("userId", userId).get()
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    val rides: MutableList<Ride> = mutableListOf()
+                    for (document in task.result) {
+                        rides.add(Ride.fromJSON(document.data))
+                    }
+                    callback(rides)
+                } else {
+                    callback(emptyList())
+                }
+            }
+    }
+
 
     fun addRide(ride: Ride, callback: EmptyCallback) {
         database.collection(Constants.COLLECTIONS.RIDES).document(ride.id)
