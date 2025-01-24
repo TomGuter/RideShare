@@ -4,22 +4,27 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.shareride.R
-import com.google.firebase.firestore.FirebaseFirestore
+import com.example.shareride.model.User
 import com.squareup.picasso.Picasso
 
-class JoinedUsersAdapter(private val userList: List<String>, private val onItemClick: (String) -> Unit) :
-    RecyclerView.Adapter<JoinedUsersAdapter.UserViewHolder>() {
+class JoinedUsersAdapter(
+    private val userList: MutableList<User>,
+    private val onItemClick: (String) -> Unit
+) : RecyclerView.Adapter<JoinedUsersAdapter.UserViewHolder>() {
 
     inner class UserViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val userImage: ImageView = view.findViewById(R.id.user_image)
         val userName: TextView = view.findViewById(R.id.user_name_textview)
+        val phoneNumber: TextView = view.findViewById(R.id.user_phone_textview)
 
         init {
             view.setOnClickListener {
-                onItemClick(userList[adapterPosition])
+                val userId = userList[adapterPosition].id
+                onItemClick(userId)
             }
         }
     }
@@ -31,26 +36,38 @@ class JoinedUsersAdapter(private val userList: List<String>, private val onItemC
     }
 
     override fun onBindViewHolder(holder: UserViewHolder, position: Int) {
-        val userId = userList[position]
+        val user = userList[position]
+        val progressBar = holder.itemView.findViewById<ProgressBar>(R.id.image_progress)
 
-        getUserPictureUrl(userId) { pictureUrl ->
-            if (pictureUrl.isNotEmpty()) {
-                Picasso.get().load(pictureUrl).into(holder.userImage)
-            }
+        progressBar.visibility = View.VISIBLE
+
+        if (user.pictureUrl.isNotEmpty()) {
+            Picasso.get()
+                .load(user.pictureUrl)
+                .placeholder(R.drawable.avatar)
+                .into(holder.userImage, object : com.squareup.picasso.Callback {
+                    override fun onSuccess() {
+                        progressBar.visibility = View.GONE
+                    }
+
+                    override fun onError(e: Exception?) {
+                        progressBar.visibility = View.GONE
+                    }
+                })
+        } else {
+            holder.userImage.setImageResource(R.drawable.avatar)
+            progressBar.visibility = View.GONE  // Hide spinner if no image URL
         }
 
-        holder.userName.text = "User $userId"
+        holder.userName.text = "Name: ${user.firstName}" ?: "Unknown User"
+        holder.phoneNumber.text = "Phone: ${user.phone}" ?: "Unknown Phone Number"
     }
 
     override fun getItemCount() = userList.size
 
-    private fun getUserPictureUrl(userId: String, callback: (String) -> Unit) {
-        val userRef = FirebaseFirestore.getInstance().collection("users").document(userId)
-        userRef.get()
-            .addOnSuccessListener { document ->
-                val pictureUrl = document.getString("pictureUrl") ?: ""
-                callback(pictureUrl)
-            }
-            .addOnFailureListener { callback("") }
+    fun updateUserList(newUserList: List<User>) {
+        userList.clear()
+        userList.addAll(newUserList)
+        notifyDataSetChanged()
     }
 }

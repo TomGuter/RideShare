@@ -5,19 +5,53 @@
     android:orientation="horizontal"
     android:padding="8dp">
 
-    <ImageView
-        android:id="@+id/user_image"
+    <FrameLayout
         android:layout_width="50dp"
         android:layout_height="50dp"
-        android:src="@drawable/avatar"
-        android:layout_marginEnd="16dp"
-        android:contentDescription="User Image"/>
+        android:layout_marginEnd="16dp">
 
-    <TextView
-        android:id="@+id/user_name_textview"
+        <ImageView
+            android:id="@+id/user_image"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:src="@drawable/avatar"
+            android:contentDescription="User Image"
+            android:background="@drawable/circle_background"
+            android:scaleType="centerCrop"
+            android:layout_gravity="center"
+            android:clipToOutline="true" />
+
+
+        <ProgressBar
+            android:id="@+id/image_progress"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:visibility="gone"
+            android:indeterminate="true" />
+    </FrameLayout>
+
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="User Name"
-        android:textSize="16sp"
-        android:gravity="center_vertical" />
+        android:orientation="vertical"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:id="@+id/user_name_textview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="User Name"
+            android:textSize="16sp"
+            android:gravity="center_vertical" />
+
+        <TextView
+            android:id="@+id/user_phone_textview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Phone Number"
+            android:textSize="14sp"
+            android:gravity="center_vertical"
+            android:textColor="#757575" />
+    </LinearLayout>
 </LinearLayout>
