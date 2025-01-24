@@ -98,6 +98,11 @@ class MainActivity : AppCompatActivity() {
                 navController.navigate(R.id.myRidesFragment)
                 true
             }
+            R.id.action_user -> {
+                navController.navigate(R.id.personalAreaFragment)
+                true
+            }
+
             else -> super.onOptionsItemSelected(item)
         }
     }
