@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModel
 import com.example.shareride.model.Ride
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.SetOptions
 
 class RideViewModel : ViewModel() {
 
@@ -80,7 +81,7 @@ class RideViewModel : ViewModel() {
         val x = 2
         firestore.collection("rides")
             .document(rideId) // Reference the ride by its document ID
-            .set(updatedRide) // Set the updated ride data
+            .set(updatedRide, SetOptions.merge())
             .addOnSuccessListener {
                 loadUserRides() // Refresh the list after updating
                 _rideUpdated.value = true // Notify about successful update
