@@ -84,8 +84,6 @@ class MyRidesFragment : Fragment() {
         }
     }
 
-
-
     private fun deleteRide(ride: Ride) {
         val documentId = rideWithIdList.find { it.first == ride }?.second
         if (documentId != null) {
