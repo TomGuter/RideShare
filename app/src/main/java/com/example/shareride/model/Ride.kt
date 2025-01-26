@@ -1,7 +1,11 @@
 package com.example.shareride.model
 
+import android.content.Context
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.example.shareride.base.MyApplication
+import com.google.firebase.Timestamp
+import com.google.firebase.firestore.FieldValue
 
 @Entity
 data class Ride(
@@ -19,10 +23,25 @@ data class Ride(
     val latitude: Double = 0.0,
     val longitude: Double = 0.0,
     val vacantSeats: Int = 0,
-    val joinedUsers: List<String> = emptyList()
+    val joinedUsers: List<String> = emptyList(),
+    val lastUpdated: Long? = null
+
 ) {
 
     companion object {
+
+        var lastUpdated: Long
+            get() = MyApplication.Globals.context?.getSharedPreferences("TAG", Context.MODE_PRIVATE)
+                ?.getLong(LOCAL_LAST_UPDATED, 0) ?: 0
+
+            set(value) {
+                MyApplication.Globals.context
+                    ?.getSharedPreferences("TAG", Context.MODE_PRIVATE)?.apply {
+                        edit().putLong(LOCAL_LAST_UPDATED, value).apply()
+                    }
+            }
+
+
 
         private const val ID_KEY = "id"
         private const val NAME_KEY = "name"
@@ -39,6 +58,9 @@ data class Ride(
         private const val LONGITUDE_KEY = "longitude"
         private const val VACANT_SEATS_KEY = "vacantSeats"
         private const val JOINED_USERS_KEY = "joinedUsers"
+        const val LAST_UPDATED = "lastUpdated"
+        const val LOCAL_LAST_UPDATED = "locaStudentLastUpdated"
+
 
         fun fromJSON(json: Map<String, Any>): Ride {
             val id = json[ID_KEY] as? String ?: ""
@@ -56,6 +78,8 @@ data class Ride(
             val longitude = (json[LONGITUDE_KEY] as? Number)?.toDouble() ?: 0.0
             val vacantSeats = (json[VACANT_SEATS_KEY] as? Number)?.toInt() ?: 0
             val joinedUsers = (json[JOINED_USERS_KEY] as? List<*>)?.mapNotNull { it as? String } ?: emptyList()
+            val timeStamp = json[LAST_UPDATED] as? Timestamp
+            val lastUpdatedLongTimestamp = timeStamp?.toDate()?.time
 
             return Ride(
                 id = id,
@@ -72,7 +96,7 @@ data class Ride(
                 latitude = latitude,
                 longitude = longitude,
                 vacantSeats = vacantSeats,
-                joinedUsers = joinedUsers
+                joinedUsers = joinedUsers,
             )
         }
     }
@@ -94,7 +118,10 @@ data class Ride(
                 LATITUDE_KEY to latitude,
                 LONGITUDE_KEY to longitude,
                 VACANT_SEATS_KEY to vacantSeats,
-                JOINED_USERS_KEY to joinedUsers
+                JOINED_USERS_KEY to joinedUsers,
+                LAST_UPDATED to FieldValue.serverTimestamp()
+
+
             )
         }
 }

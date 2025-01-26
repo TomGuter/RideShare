@@ -18,6 +18,8 @@ import com.example.shareride.base.Constants
 import com.example.shareride.base.EmptyCallback
 import com.example.shareride.base.MyApplication.Globals.context
 import com.example.shareride.base.RidesCallback
+import com.example.shareride.utils.toFirebaseTimestamp
+import com.google.firebase.Timestamp
 import java.io.ByteArrayOutputStream
 
 class FirebaseModel {
@@ -37,6 +39,24 @@ class FirebaseModel {
 
     fun getCurrentUserId(): String? {
         return auth.currentUser?.uid
+    }
+
+
+   fun getAllRides2(lastUpdated: Long, callback: RidesCallback) {
+    database.collection(Constants.COLLECTIONS.RIDES)
+        .whereGreaterThan(Ride.LOCAL_LAST_UPDATED, lastUpdated.toFirebaseTimestamp)
+        .get()
+        .addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                val rides: MutableList<Ride> = mutableListOf()
+                for (document in task.result) {
+                    rides.add(Ride.fromJSON(document.data))
+                }
+                callback(rides)
+            } else {
+                callback(emptyList())
+            }
+        }
     }
 
 
@@ -71,11 +91,11 @@ class FirebaseModel {
     }
 
 
-    fun addRide(ride: Ride, callback: EmptyCallback) {
+    fun addRide(ride: Ride, callback: SuccessCallback) {
         database.collection(Constants.COLLECTIONS.RIDES).document(ride.id)
             .set(ride.json)
-            .addOnCompleteListener {
-                callback()
+            .addOnCompleteListener { task ->
+                callback(task.isSuccessful)
             }
     }
 

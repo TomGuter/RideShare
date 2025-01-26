@@ -17,11 +17,16 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.app.ActivityCompat
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import com.example.shareride.ui.LoginActivity
 import com.example.shareride.model.Ride
 import com.example.shareride.model.Model
+import com.example.shareride.model.dau.AppLocalDb
+import com.example.shareride.ui.RideListViewModel
+import com.example.shareride.ui.RideListViewModelFactory
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.Granularity
 import com.google.android.gms.location.LocationCallback
@@ -46,6 +51,9 @@ class MainActivity : AppCompatActivity() {
     lateinit var navController: NavController
     private lateinit var map: MapView
     private lateinit var progressBar: ProgressBar
+    private lateinit var viewModel: RideListViewModel
+
+
     private var currentInfoWindow: InfoWindow? = null
     private val handler = Handler(Looper.getMainLooper())
     private val loadingDelay = 1000L
@@ -62,7 +70,14 @@ class MainActivity : AppCompatActivity() {
         setupNavigation()
         setupMap()
         setupLocationServices()
-        fetchRidesFromDatabase()
+
+
+        viewModel = ViewModelProvider(this, RideListViewModelFactory(AppLocalDb.rideDao))[RideListViewModel::class.java]        // Initialize UI components
+
+        viewModel.rides.observe(this, Observer { rides ->
+            updateMapWithRides(rides)
+        })
+        viewModel.fetchRidesFromDatabase()
     }
 
     override fun onResume() {
@@ -113,6 +128,9 @@ class MainActivity : AppCompatActivity() {
         map = findViewById(R.id.map)
         val toolbar: Toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
+
+        viewModel = ViewModelProvider(this, RideListViewModelFactory(AppLocalDb.rideDao))[RideListViewModel::class.java]        // Initialize UI components
+
     }
 
     private fun initializeFirebase() {
@@ -175,36 +193,44 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun fetchRidesFromDatabase() {
-        val rides = mutableListOf<Ride>()
-        Model.shared.getAllRides { ridesList -> rides.addAll(ridesList) }
+//        viewModel.rides.observe(this, Observer { rides ->
+//            updateMapWithRides(rides)
+//        })
+//
+//        viewModel.fetchRidesFromDatabase()
 
-        FirebaseFirestore.getInstance().collection("rides").get()
-            .addOnSuccessListener { result ->
-                for (document in result) {
-                    rides.add(
-                        Ride(
-                            id = document.getString("id") ?: "",
-                            name = document.getString("name") ?: "",
-                            driverName = document.getString("driverName") ?: "",
-                            routeFrom = document.getString("routeFrom") ?: "",
-                            routeTo = document.getString("routeTo") ?: "",
-                            date = document.getString("date") ?: "",
-                            departureTime = document.getString("departureTime") ?: "",
-                            ratingSum = document.getDouble("ratingSum")?.toFloat() ?: 0f,
-                            ratingCount = document.getLong("ratingCount")?.toInt() ?: 0,
-                            userId = document.getString("userId") ?: "",
-                            latitude = document.getDouble("latitude") ?: 0.0,
-                            longitude = document.getDouble("longitude") ?: 0.0,
-                            vacantSeats = document.getLong("vacantSeats")?.toInt() ?: 0,
-                            joinedUsers = (document.get("joinedUsers") as? List<*>)?.mapNotNull { it as? String } ?: emptyList()
-                        )
-                    )
-                }
-                updateMapWithRides(rides)
-            }
-            .addOnFailureListener { e ->
-                Toast.makeText(this, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
-            }
+
+//
+//        val rides = mutableListOf<Ride>()
+//        Model.shared.getAllRides { ridesList -> rides.addAll(ridesList) }
+//
+//        FirebaseFirestore.getInstance().collection("rides").get()
+//            .addOnSuccessListener { result ->
+//                for (document in result) {
+//                    rides.add(
+//                        Ride(
+//                            id = document.getString("id") ?: "",
+//                            name = document.getString("name") ?: "",
+//                            driverName = document.getString("driverName") ?: "",
+//                            routeFrom = document.getString("routeFrom") ?: "",
+//                            routeTo = document.getString("routeTo") ?: "",
+//                            date = document.getString("date") ?: "",
+//                            departureTime = document.getString("departureTime") ?: "",
+//                            ratingSum = document.getDouble("ratingSum")?.toFloat() ?: 0f,
+//                            ratingCount = document.getLong("ratingCount")?.toInt() ?: 0,
+//                            userId = document.getString("userId") ?: "",
+//                            latitude = document.getDouble("latitude") ?: 0.0,
+//                            longitude = document.getDouble("longitude") ?: 0.0,
+//                            vacantSeats = document.getLong("vacantSeats")?.toInt() ?: 0,
+//                            joinedUsers = (document.get("joinedUsers") as? List<*>)?.mapNotNull { it as? String } ?: emptyList()
+//                        )
+//                    )
+//                }
+//                updateMapWithRides(rides)
+//            }
+//            .addOnFailureListener { e ->
+//                Toast.makeText(this, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+//            }
     }
 
     private fun updateMapWithRides(rides: List<Ride>) {

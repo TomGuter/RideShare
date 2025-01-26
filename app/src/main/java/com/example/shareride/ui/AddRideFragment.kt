@@ -10,10 +10,12 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import com.example.shareride.MainActivity
 import com.example.shareride.R
 import com.example.shareride.model.Model
 import com.example.shareride.model.Ride
+import com.example.shareride.model.dau.AppLocalDb
 import com.google.android.material.textfield.TextInputEditText
 import com.google.firebase.auth.FirebaseAuth
 import java.util.*
@@ -39,11 +41,17 @@ class AddRideFragment : Fragment() {
     private lateinit var departureTimeInput: TextInputEditText
     private lateinit var vacantSeatsInput: TextInputEditText
 
+    private lateinit var viewModel: RideListViewModel
+
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.fragment_add_ride, container, false)
+
+        viewModel = ViewModelProvider(this, RideListViewModelFactory(AppLocalDb.rideDao))[RideListViewModel::class.java]        // Initialize UI components
+
 
         rideNameInput = view.findViewById(R.id.ride_name_input)
         driverNameInput = view.findViewById(R.id.driver_name_input)
@@ -128,12 +136,20 @@ class AddRideFragment : Fragment() {
                     longitude = longitude
                 )
 
-                Model.shared.addRide(updatedRide) {
+                Model.shared.addRide(updatedRide) { success ->
                     activity?.runOnUiThread {
-                        Toast.makeText(requireContext(), "Ride added successfully", Toast.LENGTH_SHORT).show()
-                        requireActivity().onBackPressed()
+                        if (success) {
+                            viewModel.addRide(updatedRide)
+
+                            Toast.makeText(requireContext(), "Ride added successfully", Toast.LENGTH_SHORT).show()
+                            requireActivity().onBackPressed()
+                        } else {
+                            Toast.makeText(requireContext(), "Failed to add ride", Toast.LENGTH_SHORT).show()
+                        }
                     }
                 }
+
+
 
             } else {
                 activity?.runOnUiThread {
@@ -142,6 +158,7 @@ class AddRideFragment : Fragment() {
             }
         }.start()
     }
+
 
     private fun getCoordinates(routeFrom: String): Pair<Double, Double> {
         val geocoder = Geocoder(requireContext())
