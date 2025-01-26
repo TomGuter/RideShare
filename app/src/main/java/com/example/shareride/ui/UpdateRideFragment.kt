@@ -1,5 +1,7 @@
 package com.example.shareride.ui
 
+import android.app.DatePickerDialog
+import android.app.TimePickerDialog
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -12,8 +14,10 @@ import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.example.shareride.R
+import com.example.shareride.model.Model
 import com.example.shareride.model.Ride
 import com.example.shareride.viewmodel.RideViewModel
+import java.util.*
 
 class UpdateRideFragment : Fragment() {
 
@@ -46,7 +50,6 @@ class UpdateRideFragment : Fragment() {
 
         rideViewModel = ViewModelProvider(this)[RideViewModel::class.java]
 
-
         arguments?.let {
             documentId = it.getString("documentId", "")
             rideName = it.getString("ride_name", "")
@@ -73,6 +76,39 @@ class UpdateRideFragment : Fragment() {
         view.findViewById<EditText>(R.id.editTextRideDate).setText(rideDate)
         view.findViewById<EditText>(R.id.editTextRideTime).setText(rideTime)
 
+        // Date picker dialog
+        val calendar = Calendar.getInstance()
+        val dateEditText = view.findViewById<EditText>(R.id.editTextRideDate)
+        dateEditText.setOnClickListener {
+            val datePickerDialog = DatePickerDialog(
+                requireContext(),
+                { _, year, month, dayOfMonth ->
+                    // Update the date field when the user selects a date
+                    dateEditText.setText("$dayOfMonth/${month + 1}/$year")
+                },
+                calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH),
+                calendar.get(Calendar.DAY_OF_MONTH)
+            )
+            datePickerDialog.show()
+        }
+
+        // Time picker dialog
+        val timeEditText = view.findViewById<EditText>(R.id.editTextRideTime)
+        timeEditText.setOnClickListener {
+            val timePickerDialog = TimePickerDialog(
+                requireContext(),
+                { _, hourOfDay, minute ->
+                    // Update the time field when the user selects a time
+                    timeEditText.setText(String.format("%02d:%02d", hourOfDay, minute))
+                },
+                calendar.get(Calendar.HOUR_OF_DAY),
+                calendar.get(Calendar.MINUTE),
+                true
+            )
+            timePickerDialog.show()
+        }
+
         // Handle save button click
         view.findViewById<Button>(R.id.saveRideButton).setOnClickListener {
             // Collect the updated values from the fields
@@ -83,10 +119,10 @@ class UpdateRideFragment : Fragment() {
             val updatedRideDate = view.findViewById<EditText>(R.id.editTextRideDate).text.toString()
             val updatedRideTime = view.findViewById<EditText>(R.id.editTextRideTime).text.toString()
 
-
             // Handle the save logic (e.g., update the ride in the database)
             saveRide(updatedRideName, updatedDriverName, updatedRideFrom, updatedRideTo, updatedRideDate, updatedRideTime)
         }
+
     }
 
     private fun saveRide(name: String, driver: String, from: String, to: String, date: String, time: String) {
@@ -102,26 +138,30 @@ class UpdateRideFragment : Fragment() {
             return
         }
 
-        // Create an updated Ride object with the new values
-//        val updatedRide = Ride(
-//            name = name,
-//            driverName = driver,
-//            routeFrom = from,
-//            routeTo = to,
-//            date = date,
-//            departureTime = time
-//        )
+        val updatedRide = Ride(
+            id = documentId,
+            name = name,
+            driverName = driver,
+            routeFrom = from,
+            routeTo = to,
+            date = date,
+            departureTime = time,
+            ratingSum = ratingSum,
+            ratingCount = ratingCount,
+            rating = rating,
+            userId = userId,
+            latitude = latitude,
+            longitude = longitude,
+            vacantSeats = vacantSeats,
+            joinedUsers = joinedUsers
+        )
 
         // Log before calling ViewModel
         Log.d("SaveRide", "Calling ViewModel to update ride with ID: $documentId")
+        Model.shared.updateRide(updatedRide) {
+            Toast.makeText(requireContext(), "Ride updated successfully!", Toast.LENGTH_SHORT).show()
 
-        // Update the ride in Firestore through the ViewModel
-//        rideViewModel.updateRide(documentId, updatedRide)
-
-        // Show success message
-        Toast.makeText(requireContext(), "Ride updated successfully!", Toast.LENGTH_SHORT).show()
-
-        // Navigate back to the previous fragment
-        findNavController().popBackStack()
+            findNavController().popBackStack()
+        }
     }
 }
