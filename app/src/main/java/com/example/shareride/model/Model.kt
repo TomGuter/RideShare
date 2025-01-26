@@ -1,15 +1,26 @@
 package com.example.shareride.model
 
 import android.graphics.Bitmap
+import android.os.Looper
+import androidx.core.os.HandlerCompat
 import com.example.shareride.R
 import com.example.shareride.base.EmptyCallback
 import com.example.shareride.base.RidesCallback
+import com.example.shareride.model.dau.AppLocalDb
+import com.example.shareride.model.dau.AppLocalDbRepository
 import com.google.android.gms.auth.api.signin.internal.Storage
+import java.util.concurrent.Executors
+
+typealias SuccessCallback = (Boolean) -> Unit
 
 class Model private constructor() {
 
     private val firebaseModel = FirebaseModel()
     private val cloudinaryModel = CloudinaryModel()
+
+    private val database: AppLocalDbRepository = AppLocalDb.database
+    private var executor = Executors.newSingleThreadExecutor()
+    private var mainHandler = HandlerCompat.createAsync(Looper.getMainLooper())
 
     companion object {
         val shared = Model()
@@ -20,16 +31,43 @@ class Model private constructor() {
         return firebaseModel.getCurrentUserId()
     }
 
+
     fun getAllRides(callback: RidesCallback) {
         firebaseModel.getAllRides(callback)
+
     }
+
+//    fun getAllRides2(callback: RidesCallback) {
+//        val lastUpdated: Long = Ride.lastUpdated
+//
+//        firebaseModel.getAllRides2(lastUpdated) { list ->
+//            executor.execute {
+//                var currentTime = lastUpdated
+//                for (ride in list) {
+//                    database.rideDao().insertRides(ride)
+//                    ride.lastUpdated?.let {
+//                        if (currentTime < it) {
+//                            currentTime = it
+//                        }
+//                    }
+//                }
+//
+//                Ride.lastUpdated = currentTime
+//                val savedRides = database.rideDao().getAllRides()
+//                mainHandler.post {
+//                    callback(savedRides)
+//                }
+//            }
+//
+//        }
+//
+//    }
 
     fun getRidesByUserId(userId: String, callback: RidesCallback) {
         firebaseModel.getRidesByUserId(userId, callback)
     }
 
-
-    fun addRide(ride: Ride, callback: EmptyCallback) {
+    fun addRide(ride: Ride, callback: SuccessCallback) {
         firebaseModel.addRide(ride, callback)
     }
 

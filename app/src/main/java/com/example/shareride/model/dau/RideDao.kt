@@ -1,6 +1,7 @@
 package com.example.shareride.model.dau
 
 
+import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
@@ -12,7 +13,7 @@ import com.example.shareride.model.Ride
 interface RideDao {
 
     @Query("SELECT * FROM Ride")
-    fun getAllRides(): List<Ride>
+    fun getAllRides(): LiveData<List<Ride>>
 
     @Query("SELECT * FROM Ride WHERE id = :id")
     fun getRideById(id: String): Ride
@@ -21,5 +22,6 @@ interface RideDao {
     fun insertRides(vararg rides: Ride)
 
     @Delete
-    fun delete(ride: Ride)
+    fun deleteRide(ride: Ride)
 }
+

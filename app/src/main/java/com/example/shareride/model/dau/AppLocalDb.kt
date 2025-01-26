@@ -29,4 +29,9 @@ object AppLocalDb {
             .fallbackToDestructiveMigration()
             .build()
     }
+
+    val rideDao: RideDao by lazy {
+        database.rideDao()
+    }
+
 }
