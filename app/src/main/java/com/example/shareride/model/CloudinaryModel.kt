@@ -70,4 +70,16 @@ class CloudinaryModel {
         }
         return file
     }
+
+    fun deleteImage(publicId: String, callback: (Boolean) -> Unit) {
+        try {
+            val result = MediaManager.get().cloudinary.uploader().destroy(publicId, mapOf("invalidate" to true))
+            val success = result["result"] == "ok"
+            callback(success)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            callback(false)
+        }
+    }
+
 }

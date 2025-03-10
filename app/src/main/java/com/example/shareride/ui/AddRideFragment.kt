@@ -22,16 +22,6 @@ import java.util.*
 
 class AddRideFragment : Fragment() {
 
-//    private lateinit var fetchRidesListener: OnFetchRidesListener
-
-//    override fun onAttach(context: Context) {
-//        super.onAttach(context)
-//        if (context is OnFetchRidesListener) {
-//            fetchRidesListener = context
-//        } else {
-//            throw RuntimeException("$context must implement OnFetchRidesListener")
-//        }
-//    }
 
     private lateinit var rideNameInput: TextInputEditText
     private lateinit var driverNameInput: TextInputEditText
@@ -74,7 +64,6 @@ class AddRideFragment : Fragment() {
             if (ride != null) {
                 getCoordinatesAndAddRide(ride)
 
-//                fetchRidesListener.fetchRidesFromDatabase()
             } else {
                 Toast.makeText(requireContext(), "Please fill in all fields", Toast.LENGTH_SHORT).show()
             }

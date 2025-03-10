@@ -37,31 +37,6 @@ class Model private constructor() {
 
     }
 
-//    fun getAllRides2(callback: RidesCallback) {
-//        val lastUpdated: Long = Ride.lastUpdated
-//
-//        firebaseModel.getAllRides2(lastUpdated) { list ->
-//            executor.execute {
-//                var currentTime = lastUpdated
-//                for (ride in list) {
-//                    database.rideDao().insertRides(ride)
-//                    ride.lastUpdated?.let {
-//                        if (currentTime < it) {
-//                            currentTime = it
-//                        }
-//                    }
-//                }
-//
-//                Ride.lastUpdated = currentTime
-//                val savedRides = database.rideDao().getAllRides()
-//                mainHandler.post {
-//                    callback(savedRides)
-//                }
-//            }
-//
-//        }
-//
-//    }
 
     fun getRidesByUserId(userId: String, callback: RidesCallback) {
         firebaseModel.getRidesByUserId(userId, callback)
@@ -104,18 +79,29 @@ class Model private constructor() {
     }
 
 
-    private fun updateUser(firstName: String, lastName: String, email: String, phone: String, pictureUrl: String, callback: (Boolean, String) -> Unit) {
+    fun updateUser(firstName: String, lastName: String, email: String, phone: String, pictureUrl: String, callback: (Boolean, String) -> Unit) {
         firebaseModel.updateUser(firstName, lastName, email, phone, pictureUrl, callback)
     }
 
 
 
-    private fun uploadImageToCloudinary(image: Bitmap, name: String, onSuccess: (String) -> Unit, onError: (String) -> Unit) {
+    fun uploadImageToCloudinary(image: Bitmap, name: String, onSuccess: (String) -> Unit, onError: (String) -> Unit) {
         cloudinaryModel.uploadBitmap(
             bitmap = image,
             onSuccess = onSuccess,
             onError = onError
         )
+    }
+
+    fun deleteImageFromCloudinary(url: String, callback: (Boolean) -> Unit) {
+        val cloudinaryBaseUrl = "https://res.cloudinary.com/your-cloud-name/image/upload/"
+
+        if (url.startsWith(cloudinaryBaseUrl)) {
+            val publicId = url.substringAfter(cloudinaryBaseUrl).substringBeforeLast(".") // Remove extension
+            cloudinaryModel.deleteImage(publicId, callback) // Pass extracted publicId
+        } else {
+            callback(false)
+        }
     }
 
     fun getUser(userId: String, callback: (User) -> Unit) {

@@ -34,6 +34,7 @@ import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -72,12 +73,15 @@ class MainActivity : AppCompatActivity() {
         setupLocationServices()
 
 
+
         viewModel = ViewModelProvider(this, RideListViewModelFactory(AppLocalDb.rideDao))[RideListViewModel::class.java]        // Initialize UI components
 
         viewModel.rides.observe(this, Observer { rides ->
             updateMapWithRides(rides)
         })
         viewModel.fetchRidesFromDatabase()
+
+        refreshMap()
     }
 
     override fun onResume() {
@@ -122,6 +126,13 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun refreshMap() {
+        val refreshButton = findViewById<FloatingActionButton>(R.id.refresh_button)
+        refreshButton.setOnClickListener {
+            viewModel.fetchRidesFromDatabase()
+        }
+    }
+
     private fun initializeLayout() {
         setContentView(R.layout.activity_main)
         progressBar = findViewById(R.id.progressBar)
@@ -151,7 +162,7 @@ class MainActivity : AppCompatActivity() {
     private fun setupMap() {
         Configuration.getInstance().load(applicationContext, android.preference.PreferenceManager.getDefaultSharedPreferences(applicationContext))
         map.setMultiTouchControls(true)
-        val startPoint = GeoPoint(32.05588366083988, 34.85768581875001)
+        val startPoint = GeoPoint(31.97019, 34.7766351)
         map.controller.setZoom(12.0)
         map.controller.setCenter(startPoint)
         map.addMapListener(object : MapListener {
@@ -192,50 +203,12 @@ class MainActivity : AppCompatActivity() {
         map.overlays.add(marker)
     }
 
-    private fun fetchRidesFromDatabase() {
-//        viewModel.rides.observe(this, Observer { rides ->
-//            updateMapWithRides(rides)
-//        })
-//
-//        viewModel.fetchRidesFromDatabase()
 
-
-//
-//        val rides = mutableListOf<Ride>()
-//        Model.shared.getAllRides { ridesList -> rides.addAll(ridesList) }
-//
-//        FirebaseFirestore.getInstance().collection("rides").get()
-//            .addOnSuccessListener { result ->
-//                for (document in result) {
-//                    rides.add(
-//                        Ride(
-//                            id = document.getString("id") ?: "",
-//                            name = document.getString("name") ?: "",
-//                            driverName = document.getString("driverName") ?: "",
-//                            routeFrom = document.getString("routeFrom") ?: "",
-//                            routeTo = document.getString("routeTo") ?: "",
-//                            date = document.getString("date") ?: "",
-//                            departureTime = document.getString("departureTime") ?: "",
-//                            ratingSum = document.getDouble("ratingSum")?.toFloat() ?: 0f,
-//                            ratingCount = document.getLong("ratingCount")?.toInt() ?: 0,
-//                            userId = document.getString("userId") ?: "",
-//                            latitude = document.getDouble("latitude") ?: 0.0,
-//                            longitude = document.getDouble("longitude") ?: 0.0,
-//                            vacantSeats = document.getLong("vacantSeats")?.toInt() ?: 0,
-//                            joinedUsers = (document.get("joinedUsers") as? List<*>)?.mapNotNull { it as? String } ?: emptyList()
-//                        )
-//                    )
-//                }
-//                updateMapWithRides(rides)
-//            }
-//            .addOnFailureListener { e ->
-//                Toast.makeText(this, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
-//            }
-    }
 
     private fun updateMapWithRides(rides: List<Ride>) {
         val startPoint = GeoPoint(32.05588366083988, 34.85768581875001)
-
+//        startPoint.latitude = location.latitude
+//        startPoint.longitude = location.longitude
         map.overlays.clear()
         addDefaultMarker(startPoint)
         if (rides.isEmpty()) {

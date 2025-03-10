@@ -42,6 +42,8 @@ class FirebaseModel {
     }
 
 
+
+
    fun getAllRides2(lastUpdated: Long, callback: RidesCallback) {
     database.collection(Constants.COLLECTIONS.RIDES)
         .whereGreaterThan(Ride.LOCAL_LAST_UPDATED, lastUpdated.toFirebaseTimestamp)
