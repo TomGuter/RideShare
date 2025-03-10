@@ -37,7 +37,6 @@ class RegisterActivity : AppCompatActivity() {
     private var imageBitmap: Bitmap? = null
     private val CAMERA_PERMISSION_REQUEST = 100
 
-    // Launchers for camera and gallery
     private lateinit var cameraLauncher: ActivityResultLauncher<Void?>
     private lateinit var galleryLauncher: ActivityResultLauncher<String>
 
