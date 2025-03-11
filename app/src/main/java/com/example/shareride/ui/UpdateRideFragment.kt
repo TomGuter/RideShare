@@ -16,7 +16,8 @@ import androidx.navigation.fragment.findNavController
 import com.example.shareride.R
 import com.example.shareride.model.Model
 import com.example.shareride.model.Ride
-import com.example.shareride.viewmodel.RideViewModel
+import com.example.shareride.model.dau.AppLocalDb.rideDao
+//import com.example.shareride.viewmodel.RideViewModel
 import java.util.*
 
 class UpdateRideFragment : Fragment() {
@@ -37,7 +38,8 @@ class UpdateRideFragment : Fragment() {
     private var vacantSeats: Int = 0
     private var joinedUsers: ArrayList<String> = arrayListOf()
 
-    private lateinit var rideViewModel: RideViewModel
+    private lateinit var rideViewModel: RideListViewModel
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -48,7 +50,8 @@ class UpdateRideFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        rideViewModel = ViewModelProvider(this)[RideViewModel::class.java]
+        rideViewModel = ViewModelProvider(this, RideListViewModelFactory(rideDao))[RideListViewModel::class.java]
+
 
         arguments?.let {
             documentId = it.getString("documentId", "")
@@ -68,22 +71,20 @@ class UpdateRideFragment : Fragment() {
             joinedUsers = it.getStringArrayList("joined_users") ?: arrayListOf()
         }
 
-        // Populate the fields with the current ride data
         view.findViewById<EditText>(R.id.editTextRideName).setText(rideName)
         view.findViewById<EditText>(R.id.editTextDriverName).setText(driverName)
         view.findViewById<EditText>(R.id.editTextRideFrom).setText(rideFrom)
         view.findViewById<EditText>(R.id.editTextRideTo).setText(rideTo)
         view.findViewById<EditText>(R.id.editTextRideDate).setText(rideDate)
         view.findViewById<EditText>(R.id.editTextRideTime).setText(rideTime)
+        view.findViewById<EditText>(R.id.editTextVacantSeats).setText(vacantSeats.toString())
 
-        // Date picker dialog
         val calendar = Calendar.getInstance()
         val dateEditText = view.findViewById<EditText>(R.id.editTextRideDate)
         dateEditText.setOnClickListener {
             val datePickerDialog = DatePickerDialog(
                 requireContext(),
                 { _, year, month, dayOfMonth ->
-                    // Update the date field when the user selects a date
                     dateEditText.setText("$dayOfMonth/${month + 1}/$year")
                 },
                 calendar.get(Calendar.YEAR),
@@ -93,13 +94,11 @@ class UpdateRideFragment : Fragment() {
             datePickerDialog.show()
         }
 
-        // Time picker dialog
         val timeEditText = view.findViewById<EditText>(R.id.editTextRideTime)
         timeEditText.setOnClickListener {
             val timePickerDialog = TimePickerDialog(
                 requireContext(),
                 { _, hourOfDay, minute ->
-                    // Update the time field when the user selects a time
                     timeEditText.setText(String.format("%02d:%02d", hourOfDay, minute))
                 },
                 calendar.get(Calendar.HOUR_OF_DAY),
@@ -109,27 +108,25 @@ class UpdateRideFragment : Fragment() {
             timePickerDialog.show()
         }
 
-        // Handle save button click
+
         view.findViewById<Button>(R.id.saveRideButton).setOnClickListener {
-            // Collect the updated values from the fields
+
             val updatedRideName = view.findViewById<EditText>(R.id.editTextRideName).text.toString()
             val updatedDriverName = view.findViewById<EditText>(R.id.editTextDriverName).text.toString()
             val updatedRideFrom = view.findViewById<EditText>(R.id.editTextRideFrom).text.toString()
             val updatedRideTo = view.findViewById<EditText>(R.id.editTextRideTo).text.toString()
             val updatedRideDate = view.findViewById<EditText>(R.id.editTextRideDate).text.toString()
             val updatedRideTime = view.findViewById<EditText>(R.id.editTextRideTime).text.toString()
+            val updatedVacantSeats = view.findViewById<EditText>(R.id.editTextVacantSeats).text.toString().toInt()
 
-            // Handle the save logic (e.g., update the ride in the database)
-            saveRide(updatedRideName, updatedDriverName, updatedRideFrom, updatedRideTo, updatedRideDate, updatedRideTime)
+            saveRide(updatedRideName, updatedDriverName, updatedRideFrom, updatedRideTo, updatedRideDate, updatedRideTime, updatedVacantSeats)
         }
 
     }
 
-    private fun saveRide(name: String, driver: String, from: String, to: String, date: String, time: String) {
-        // Retrieve the documentId from the Bundle arguments
+    private fun saveRide(name: String, driver: String, from: String, to: String, date: String, time: String, vacantSeats: Int) {
         val documentId = arguments?.getString("documentId")
 
-        // Log the data for debugging
         Log.d("SaveRide", "Save ride called with: $name, $driver, $from, $to, $date, $time")
 
         if (documentId == null) {
@@ -156,12 +153,10 @@ class UpdateRideFragment : Fragment() {
             joinedUsers = joinedUsers
         )
 
-        // Log before calling ViewModel
         Log.d("SaveRide", "Calling ViewModel to update ride with ID: $documentId")
-        Model.shared.updateRide(updatedRide) {
-            Toast.makeText(requireContext(), "Ride updated successfully!", Toast.LENGTH_SHORT).show()
+        rideViewModel.updateRide(updatedRide)
+        Toast.makeText(requireContext(), "Ride updated successfully!", Toast.LENGTH_SHORT).show()
 
-            findNavController().popBackStack()
-        }
+        findNavController().popBackStack()
     }
 }

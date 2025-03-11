@@ -7,6 +7,7 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Update
 import com.example.shareride.model.Ride
 
 @Dao
@@ -23,5 +24,8 @@ interface RideDao {
 
     @Delete
     fun deleteRide(ride: Ride)
+
+    @Update
+    fun updateRide(ride: Ride)
 }
 

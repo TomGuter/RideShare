@@ -11,7 +11,6 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import com.example.shareride.MainActivity
 import com.example.shareride.R
 import com.example.shareride.model.Model
 import com.example.shareride.model.Ride
@@ -149,20 +148,6 @@ class AddRideFragment : Fragment() {
     }
 
 
-
-    private fun getCoordinates(routeFrom: String): Pair<Double, Double> {
-        val geocoder = Geocoder(requireContext())
-        val addresses = geocoder.getFromLocationName(routeFrom, 1)
-
-        return if (addresses != null && addresses.isNotEmpty()) {
-            val address = addresses[0]
-            val latitude = address.latitude
-            val longitude = address.longitude
-            Pair(latitude, longitude)
-        } else {
-            Pair(0.0, 0.0)
-        }
-    }
 
     private fun showDatePicker() {
         val calendar = Calendar.getInstance()

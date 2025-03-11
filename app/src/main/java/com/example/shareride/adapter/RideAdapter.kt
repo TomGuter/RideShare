@@ -1,6 +1,5 @@
 package com.example.shareride.adapter
 
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -9,7 +8,6 @@ import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.shareride.R
-import com.example.shareride.model.FirebaseModel
 import com.example.shareride.model.Ride
 import com.example.shareride.model.User
 import com.google.firebase.firestore.FirebaseFirestore
@@ -50,15 +48,13 @@ class RideAdapter(private val rideList: MutableList<Ride>, private val onRideCli
                         })
                 } else {
                     Picasso.get()
-                        .load(R.drawable.avatar)  // Default image when no URL
+                        .load(R.drawable.avatar)
                         .into(driverImage, object : com.squareup.picasso.Callback {
                             override fun onSuccess() {
-                                // Hide the ProgressBar once the image is loaded successfully
                                 progressBar.visibility = View.GONE
                             }
 
                             override fun onError(e: Exception?) {
-                                // Hide the ProgressBar if there's an error loading the image
                                 progressBar.visibility = View.GONE
                             }
                         })
@@ -108,9 +104,10 @@ class RideAdapter(private val rideList: MutableList<Ride>, private val onRideCli
     }
 
     fun updateRides(newRides: List<Ride>) {
-        if (rideList != newRides) {
+        val sortedRides = newRides.sortedBy { it.date }
+        if (rideList != sortedRides) {
             rideList.clear()
-            rideList.addAll(newRides)
+            rideList.addAll(sortedRides)
             notifyDataSetChanged()
         }
     }

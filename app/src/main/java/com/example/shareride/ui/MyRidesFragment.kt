@@ -16,13 +16,13 @@ import com.example.shareride.adapter.MyRidesAdapter
 import com.example.shareride.model.Model
 import com.example.shareride.model.Ride
 import com.example.shareride.model.User
-import com.example.shareride.viewmodel.RideViewModel
+import com.example.shareride.model.dau.AppLocalDb.rideDao
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
 class MyRidesFragment : Fragment() {
 
-    private lateinit var rideViewModel: RideViewModel
+    private lateinit var rideViewModel: RideListViewModel
     private lateinit var rideAdapter: MyRidesAdapter
     private lateinit var firestore: FirebaseFirestore
     private val rideWithIdList = mutableListOf<Pair<Ride, String>>()
@@ -38,9 +38,8 @@ class MyRidesFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
 
-        rideViewModel = ViewModelProvider(this)[RideViewModel::class.java]
 
-
+        rideViewModel = ViewModelProvider(this, RideListViewModelFactory(rideDao))[RideListViewModel::class.java]
         firestore = FirebaseFirestore.getInstance()
 
 
@@ -87,14 +86,15 @@ class MyRidesFragment : Fragment() {
     private fun deleteRide(ride: Ride) {
         val documentId = rideWithIdList.find { it.first == ride }?.second
         if (documentId != null) {
-            Model.shared.deleteRide(ride.id) {
-                Toast.makeText(requireContext(), "Ride deleted successfully!", Toast.LENGTH_SHORT).show()
-                fetchRidesFromDatabase()
-            }
+            rideViewModel.deleteRide(ride)
+            fetchRidesFromDatabase()
+            Toast.makeText(requireContext(), "Ride deleted successfully!", Toast.LENGTH_SHORT).show()
+
         } else {
             Toast.makeText(requireContext(), "Ride not found!", Toast.LENGTH_SHORT).show()
         }
     }
+
 
     private fun updateRide(ride: Ride) {
         val documentId = rideWithIdList.find { it.first == ride }?.second
