@@ -16,8 +16,12 @@ import com.example.shareride.R
 import com.example.shareride.model.Model
 import com.example.shareride.model.Ride
 import com.example.shareride.model.dau.AppLocalDb
+import com.example.shareride.utils.OpenCageResponse
+import com.example.shareride.utils.RetrofitClient
 import com.google.android.material.textfield.TextInputEditText
 import com.google.firebase.auth.FirebaseAuth
+import org.osmdroid.wms.BuildConfig
+import retrofit2.Call
 import java.util.*
 
 class AddRideFragment : Fragment() {
@@ -113,40 +117,37 @@ class AddRideFragment : Fragment() {
     }
 
     private fun getCoordinatesAndAddRide(ride: Ride) {
-        val routeFrom = ride.routeFrom
+        val apiKey = "7087fda4d1ab49d7b25608795548e6d5"
+        val address = ride.routeFrom
 
-        Thread {
-            val (latitude, longitude) = getCoordinates(routeFrom)
+        RetrofitClient.instance.getCoordinates(address, apiKey).enqueue(object : retrofit2.Callback<OpenCageResponse> {
+            override fun onResponse(call: Call<OpenCageResponse>, response: retrofit2.Response<OpenCageResponse>) {
+                if (response.isSuccessful && response.body()?.results?.isNotEmpty() == true) {
+                    val location = response.body()!!.results[0].geometry
+                    val updatedRide = ride.copy(latitude = location.latitude, longitude = location.longitude)
 
-            if (latitude != 0.0 && longitude != 0.0) {
-                // Once coordinates are fetched, update the ride object and add it to the database
-                val updatedRide = ride.copy(
-                    latitude = latitude,
-                    longitude = longitude
-                )
-
-                Model.shared.addRide(updatedRide) { success ->
-                    activity?.runOnUiThread {
-                        if (success) {
-                            viewModel.addRide(updatedRide)
-
-                            Toast.makeText(requireContext(), "Ride added successfully", Toast.LENGTH_SHORT).show()
-                            requireActivity().onBackPressed()
-                        } else {
-                            Toast.makeText(requireContext(), "Failed to add ride", Toast.LENGTH_SHORT).show()
+                    Model.shared.addRide(updatedRide) { success ->
+                        activity?.runOnUiThread {
+                            if (success) {
+                                viewModel.addRide(updatedRide)
+                                Toast.makeText(requireContext(), "Ride added successfully", Toast.LENGTH_SHORT).show()
+                                requireActivity().onBackPressed()
+                            } else {
+                                Toast.makeText(requireContext(), "Failed to add ride", Toast.LENGTH_SHORT).show()
+                            }
                         }
                     }
-                }
-
-
-
-            } else {
-                activity?.runOnUiThread {
-                    Toast.makeText(requireContext(), "Failed to get coordinates for $routeFrom", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(requireContext(), "Failed to fetch coordinates", Toast.LENGTH_SHORT).show()
                 }
             }
-        }.start()
+
+            override fun onFailure(call: Call<OpenCageResponse>, t: Throwable) {
+                Toast.makeText(requireContext(), "Error: ${t.message}", Toast.LENGTH_SHORT).show()
+            }
+        })
     }
+
 
 
     private fun getCoordinates(routeFrom: String): Pair<Double, Double> {
