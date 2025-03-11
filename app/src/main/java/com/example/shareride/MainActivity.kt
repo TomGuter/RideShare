@@ -206,9 +206,15 @@ class MainActivity : AppCompatActivity() {
 
 
     private fun updateMapWithRides(rides: List<Ride>) {
-        val startPoint = GeoPoint(32.05588366083988, 34.85768581875001)
-//        startPoint.latitude = location.latitude
-//        startPoint.longitude = location.longitude
+//        val startPoint = GeoPoint(32.05588366083988, 34.85768581875001)
+////        startPoint.latitude = location.latitude
+////        startPoint.longitude = location.longitude
+
+        val startPoint = if (::location.isInitialized) {
+            GeoPoint(location.latitude, location.longitude)
+        } else {
+            GeoPoint(32.05588366083988, 34.85768581875001)
+        }
         map.overlays.clear()
         addDefaultMarker(startPoint)
         if (rides.isEmpty()) {
@@ -229,8 +235,9 @@ class MainActivity : AppCompatActivity() {
             }
             map.overlays.add(marker)
         }
-        map.controller.setCenter(GeoPoint(rides[0].latitude, rides[0].longitude))
-        map.controller.setZoom(12.0)
+        val tempPoint = GeoPoint(32.05588366083988, 34.85768581875001)
+        map.controller.setCenter(tempPoint)
+        map.controller.setZoom(11.0)
     }
 
     private fun handleMarkerClick(marker: Marker) {

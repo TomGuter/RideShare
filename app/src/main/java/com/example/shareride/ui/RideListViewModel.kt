@@ -15,6 +15,12 @@ class RideListViewModel(private val rideDao: RideDao) : ViewModel() {
     private val _rides = MutableLiveData<List<Ride>>()
     val rides: LiveData<List<Ride>> get() = _rides
 
+    private val _errorMessage = MutableLiveData<String>()
+    val errorMessage: LiveData<String> get() = _errorMessage
+
+    private val _userRides = MutableLiveData<List<Pair<Ride, String>>>()
+    val userRides: LiveData<List<Pair<Ride, String>>> get() = _userRides
+
 
     fun fetchRidesFromDatabase() {
         viewModelScope.launch(Dispatchers.IO) {
@@ -43,9 +49,25 @@ class RideListViewModel(private val rideDao: RideDao) : ViewModel() {
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 rideDao.deleteRide(ride)
-                fetchRidesFromDatabase()
+
+                Model.shared.deleteRide(ride.id) {
+                    fetchRidesFromDatabase()
+                }
             } catch (e: Exception) {
                 Log.e("RideListViewModel", "Error deleting ride", e)
+            }
+        }
+    }
+
+    fun updateRide(ride: Ride) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                rideDao.updateRide(ride)
+                Model.shared.updateRide(ride) {
+                    fetchRidesFromDatabase()
+                }
+            } catch (e: Exception) {
+                Log.e("RideListViewModel", "Error updating ride", e)
             }
         }
     }

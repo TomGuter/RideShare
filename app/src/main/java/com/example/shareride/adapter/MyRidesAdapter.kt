@@ -29,6 +29,7 @@ class MyRidesAdapter(
         val departure: TextView = view.findViewById(R.id.departure)
         val rideDate: TextView = view.findViewById(R.id.ride_date)
         val phoneNumber: TextView = view.findViewById(R.id.phone_number)
+        val vacantSeats: TextView = view.findViewById(R.id.vacant_seats)
         val deleteButton: Button = view.findViewById(R.id.btn_delete)
         val updateButton: Button = view.findViewById(R.id.btn_update)
 
@@ -66,6 +67,7 @@ class MyRidesAdapter(
         holder.rideTo.text = "Ride to: ${ride.routeTo}"
         holder.departure.text = "Departure: ${ride.departureTime}"
         holder.rideDate.text = "Date: ${ride.date}"
+        holder.vacantSeats.text = "Vacant seats: ${ride.vacantSeats}"
 
         ride.userId.let { userId ->
             Model.shared.getUser(userId) { user ->

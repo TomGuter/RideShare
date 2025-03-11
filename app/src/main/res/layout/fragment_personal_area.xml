@@ -9,7 +9,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <!-- Headline -->
         <TextView
             android:id="@+id/headlineTextView"
             android:layout_width="wrap_content"
@@ -23,7 +22,6 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 
-        <!-- Profile Card -->
         <androidx.cardview.widget.CardView
             android:id="@+id/profileCard"
             android:layout_width="match_parent"
@@ -42,7 +40,6 @@
                 android:orientation="vertical"
                 android:padding="10dp">
 
-                <!-- Avatar -->
                 <ImageView
                     android:id="@+id/avatarImageView"
                     android:layout_width="150dp"
@@ -58,7 +55,6 @@
                     app:layout_constraintEnd_toEndOf="parent"/>
 
 
-                <!-- Add Image Button -->
                 <ImageButton
                     android:id="@+id/addImageButton"
                     android:layout_width="40dp"
@@ -78,7 +74,6 @@
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
-        <!-- User Info Section -->
         <androidx.cardview.widget.CardView
             android:id="@+id/userInfoCard"
             android:layout_width="match_parent"
@@ -137,7 +132,6 @@
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
-        <!-- Update Button -->
         <Button
             android:id="@+id/update_button"
             android:layout_width="match_parent"

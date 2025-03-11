@@ -17,7 +17,11 @@ android {
         versionCode = 1
         versionName = "1.0"
 
+        buildConfigField("String", "OPENCAGE_API_KEY", "\"${project.findProperty("OPENCAGE_API_KEY")}\"")
+
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+
     }
 
     buildTypes {
@@ -39,6 +43,7 @@ android {
 
     buildFeatures {
         viewBinding = true
+        buildConfig = true
     }
 }
 
@@ -85,8 +90,8 @@ dependencies {
 
     implementation (libs.picasso)
 
-
-
+    implementation (libs.retrofit)
+    implementation (libs.converter.gson)
 
 }
 
