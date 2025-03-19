@@ -5,13 +5,11 @@
     android:layout_height="match_parent"
     tools:context=".ui.UpdateRideFragment">
 
-    <!-- ScrollView to allow scrolling -->
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:padding="16dp">
 
-        <!-- LinearLayout to organize elements vertically -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
