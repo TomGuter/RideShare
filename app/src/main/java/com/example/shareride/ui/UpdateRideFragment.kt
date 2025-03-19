@@ -17,6 +17,9 @@ import com.example.shareride.R
 import com.example.shareride.model.Model
 import com.example.shareride.model.Ride
 import com.example.shareride.model.dau.AppLocalDb.rideDao
+import com.example.shareride.utils.OpenCageResponse
+import com.example.shareride.utils.RetrofitClient
+import retrofit2.Call
 //import com.example.shareride.viewmodel.RideViewModel
 import java.util.*
 
@@ -119,12 +122,13 @@ class UpdateRideFragment : Fragment() {
             val updatedRideTime = view.findViewById<EditText>(R.id.editTextRideTime).text.toString()
             val updatedVacantSeats = view.findViewById<EditText>(R.id.editTextVacantSeats).text.toString().toInt()
 
-            saveRide(updatedRideName, updatedDriverName, updatedRideFrom, updatedRideTo, updatedRideDate, updatedRideTime, updatedVacantSeats)
+
+            saveRide(updatedRideName, updatedDriverName, updatedRideFrom, updatedRideTo, updatedRideDate, updatedRideTime, updatedVacantSeats, rideFrom)
         }
 
     }
 
-    private fun saveRide(name: String, driver: String, from: String, to: String, date: String, time: String, vacantSeats: Int) {
+    private fun saveRide(name: String, driver: String, from: String, to: String, date: String, time: String, vacantSeats: Int, rideFrom: String) {
         val documentId = arguments?.getString("documentId")
 
         Log.d("SaveRide", "Save ride called with: $name, $driver, $from, $to, $date, $time")
@@ -152,6 +156,41 @@ class UpdateRideFragment : Fragment() {
             vacantSeats = vacantSeats,
             joinedUsers = joinedUsers
         )
+
+        if (rideFrom != from) {
+             fun getCoordinatesAndAddRide(ride: Ride) {
+                val apiKey = "7087fda4d1ab49d7b25608795548e6d5"
+                val address = ride.routeFrom
+
+                RetrofitClient.instance.getCoordinates(address, apiKey).enqueue(object : retrofit2.Callback<OpenCageResponse> {
+                    override fun onResponse(call: Call<OpenCageResponse>, response: retrofit2.Response<OpenCageResponse>) {
+                        if (response.isSuccessful && response.body()?.results?.isNotEmpty() == true) {
+                            val location = response.body()!!.results[0].geometry
+                            val updatedRide = ride.copy(latitude = location.latitude, longitude = location.longitude)
+
+                            Model.shared.addRide(updatedRide) { success ->
+                                activity?.runOnUiThread {
+                                    if (success) {
+                                        rideViewModel.addRide(updatedRide)
+                                        Toast.makeText(requireContext(), "Ride added successfully", Toast.LENGTH_SHORT).show()
+                                        requireActivity().onBackPressed()
+                                    } else {
+                                        Toast.makeText(requireContext(), "Failed to add ride", Toast.LENGTH_SHORT).show()
+                                    }
+                                }
+                            }
+                        } else {
+                            Toast.makeText(requireContext(), "Failed to fetch coordinates", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+
+                    override fun onFailure(call: Call<OpenCageResponse>, t: Throwable) {
+                        Toast.makeText(requireContext(), "Error: ${t.message}", Toast.LENGTH_SHORT).show()
+                    }
+                })
+            }
+            getCoordinatesAndAddRide(updatedRide)
+        }
 
         Log.d("SaveRide", "Calling ViewModel to update ride with ID: $documentId")
         rideViewModel.updateRide(updatedRide)
