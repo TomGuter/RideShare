@@ -158,7 +158,7 @@ class UpdateRideFragment : Fragment() {
         )
 
         if (rideFrom != from) {
-             fun getCoordinatesAndAddRide(ride: Ride) {
+            fun getCoordinatesAndAddRide(ride: Ride) {
                 val apiKey = "7087fda4d1ab49d7b25608795548e6d5"
                 val address = ride.routeFrom
 
@@ -191,6 +191,8 @@ class UpdateRideFragment : Fragment() {
             }
             getCoordinatesAndAddRide(updatedRide)
         }
+
+
 
         Log.d("SaveRide", "Calling ViewModel to update ride with ID: $documentId")
         rideViewModel.updateRide(updatedRide)
